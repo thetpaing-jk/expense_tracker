@@ -1,14 +1,14 @@
+import 'package:expense_tracker/features/auth/screens/register_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/root.dart';
-import '../../features/splash/screens/splash_screen.dart';
 import '../services/app_route_helper.dart';
 import 'app_const.dart';
 
 class AppRoutes {
-  static GoRouter get router => GoRouter(
+  static final GoRouter  routes = GoRouter(
         navigatorKey: AppConst.navigatorKey,
         initialLocation: '/',
         routes: [
@@ -29,20 +29,28 @@ class AppRoutes {
               return RootWidget(navigationShell: navigationshellRoute);
             }
           ),
-          GoRoute(
-            path: AppConst.splash,
-            name: AppConst.splash,
-            pageBuilder: (context, state) {
-              return AppRouteHelper.fadeTransition(child: SplashScreen(), key: state.pageKey);
-            },
-          ),
+          // GoRoute(
+          //   path: AppConst.splash,
+          //   name: AppConst.splash,
+          //   pageBuilder: (context, state) {
+          //     return AppRouteHelper.fadeTransition(child: SplashScreen(), key: state.pageKey);
+          //   },
+          // ),
           GoRoute(
             path: AppConst.login,
             name: AppConst.login,
             pageBuilder: (context, state) {
               return AppRouteHelper.fadeTransition(child: LoginScreen(), key: state.pageKey);
             },
+          ),
+          GoRoute(path: AppConst.register,
+            name: AppConst.register,
+            pageBuilder: (context, state) {
+              return AppRouteHelper.fadeTransition(child: RegisterScreen(), key: state.pageKey);
+            },
           )
         ],
       );
+
+      static GoRouter get router => routes;
 }

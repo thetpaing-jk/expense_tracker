@@ -1,6 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../utils/app_const.dart';
+
 class DatabaseService{
     DatabaseService._();
     static final DatabaseService instance = DatabaseService._();
@@ -23,6 +25,9 @@ class DatabaseService{
             version: dbVersion,
             onCreate: _dbCreate,
             onUpgrade:_dbUpgrade,
+            onOpen: (db) {
+              db.execute('PRAGMA Foreign_keys = ON');
+            },
         );
     }
 
@@ -40,7 +45,34 @@ class DatabaseService{
     Future<void> _dbCreate(Database db, int version) async{
         _db!.transaction((txn) async{
             txn.execute("""
-                Create table user 
+                Create table ${AppConst.userTable} (
+                  id INTEGER PRIMAEY KEY AUTOINCREMENT,
+                  username STRING NOT NULL,
+                  password STRING NOT NULL,
+                  email    STRING NOT NULL DEFAULT "",
+                  photo STRING NOT NULL DEFAULT ""
+                )
+            """);
+            txn.execute("""
+              Create table ${AppConst.expenseTypeTable}(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                icon INTEGER NOT NULL DEFAULT "",
+                name STRING NOT NULL DEFAULT "",
+                color INTEGER NOT NULL DEFAULT ""
+              )
+            """);
+            txn.execute("""
+              Create table ${AppConst.expenseTable}(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title STRING NOT NULL DEFAULT "",
+                amount DOUBLE NOT NULL DEFAULT 0.0,
+                type INTEGER NOT NULL DEFAULT 1,
+                date STRING NOT NULL DEFAULT "",
+                note STRING NOT NULL DEFAULT "",
+                FOREIGN KEY (type) REFERENCES ${AppConst.expenseTypeTable} (id)
+                  ON DELETE CASCADE
+                  ON UPDATE CASCADE
+              )
             """);
         });
     }

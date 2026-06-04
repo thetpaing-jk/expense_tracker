@@ -1,14 +1,203 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/utils/app_color.dart';
+import '../../../core/utils/app_const.dart';
+import 'providers/login_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
+
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
+
+  late final AnimationController _animationController;
+  late final Animation<double> _iconGlow;
+  final TextEditingController emailC = TextEditingController();
+  final TextEditingController passwordC = TextEditingController();
+  final FocusNode emailF = FocusNode();
+  final FocusNode passwordF = FocusNode();
+  final GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _iconGlow = Tween<double>(begin: 0.1, end: 0.55).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final visibilityState = ref.watch(visibilityProvider);
+    return Scaffold(
+      backgroundColor: AppColor.primaryColor,
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 120),
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Container(
+                    height: 80,
+                    width: 80,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColor.borderColor,
+                        width: 1.5,
+                      ),
+                      color: AppColor.cardBackgroundColor,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset.zero,
+                          blurRadius: 28,
+                          spreadRadius: 2,
+                          color: AppColor.buttonColor.withValues(
+                            alpha: _iconGlow.value,
+                          ),
+                        ),
+                      ],
+                    ),
+                    child: child,
+                  );
+                },
+                child: Image.asset(
+                  'assets/icon/purse.png',
+                  height: 40,
+                  width: 40,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: AppColor.buttonColor,
+                      borderRadius: BorderRadius.circular(90)
+                    ),
+                  ),
+                  const SizedBox(width: 16,),
+                  Text(
+                    "Welcome Back",
+                    style: TextTheme.of(context).headlineLarge,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8,),
+              Text("Login to continue", style: TextTheme.of(context).labelLarge),
+              const SizedBox(height: 24,),
+              Form(
+                key: formkey,
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Email", style: TextTheme.of(context).labelLarge,),
+                        const SizedBox(height: 8,),
+                        TextFormField(
+                          controller: emailC,
+                          focusNode: emailF,
+                          onTapOutside: (_){
+                            emailF.unfocus();
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hint: Text("Enter your Email", style: TextTheme.of(context).labelLarge,)
+                          ),
+                        ),
+                        const SizedBox(height: 16,),
+                        Text("Password", style: TextTheme.of(context).labelLarge,),
+                        const SizedBox(height: 8,),
+                        TextFormField(
+                          controller: passwordC,
+                          focusNode: passwordF,
+                          obscureText: !visibilityState,
+                          onTapOutside: (_){
+                            passwordF.unfocus();
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hint: Text("Enter your Password", style: TextTheme.of(context).labelLarge,),
+                            suffixIcon: IconButton(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                                overlayColor: WidgetStatePropertyAll(Colors.transparent)
+                              ),
+                              onPressed: (){
+                              ref.read(visibilityProvider.notifier).state = !visibilityState;
+                            }, icon: visibilityState == false ? Icon(Icons.visibility_off) : Icon(Icons.visibility))
+                          ),
+                        ),
+                        const SizedBox(height: 16,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(onPressed: (){}, child: Text("Forgot Password?",
+                              style: TextTheme.of(context).bodyMedium!.copyWith(
+                                color: AppColor.buttonColor
+                              ),
+                            ))
+                          ],
+                        ),
+                        const SizedBox(height: 16,),
+                        ElevatedButton(onPressed: (){}, child: Text("Login"))
+                      ],
+                    ),
+                  )
+              ),
+              const SizedBox(height: 16,),
+              InkWell(
+                onTap: (){
+                  context.goNamed(AppConst.register);
+                },
+                child: Text.rich(
+                  TextSpan(
+                    text: "Don't have an account?",
+                    style: TextTheme.of(context).labelLarge,
+                    children: [
+                      TextSpan(
+                        text: " Register",
+                        style: TextTheme.of(context).labelLarge!.copyWith(
+                          color: AppColor.buttonColor
+                        )
+                      )
+                    ]
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
