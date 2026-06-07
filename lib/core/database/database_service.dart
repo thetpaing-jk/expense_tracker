@@ -20,7 +20,7 @@ class DatabaseService{
     Future<Database> _initDb() async{
         String dbPath = await getDatabasesPath();
         String path = join(dbPath, dbName);
-        return openDatabase(
+        return await openDatabase(
             path,
             version: dbVersion,
             onCreate: _dbCreate,
@@ -43,17 +43,17 @@ class DatabaseService{
     }
 
     Future<void> _dbCreate(Database db, int version) async{
-        _db!.transaction((txn) async{
-            txn.execute("""
+        await db.transaction((txn) async{
+            await txn.execute("""
                 Create table ${AppConst.userTable} (
-                  id INTEGER PRIMAEY KEY AUTOINCREMENT,
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                   username STRING NOT NULL,
                   password STRING NOT NULL,
                   email    STRING NOT NULL DEFAULT "",
-                  photo STRING NOT NULL DEFAULT ""
+                  createdAt STRING NOT NULL DEFAULT ""
                 )
             """);
-            txn.execute("""
+            await txn.execute("""
               Create table ${AppConst.expenseTypeTable}(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 icon INTEGER NOT NULL DEFAULT "",
@@ -61,7 +61,7 @@ class DatabaseService{
                 color INTEGER NOT NULL DEFAULT ""
               )
             """);
-            txn.execute("""
+            await txn.execute("""
               Create table ${AppConst.expenseTable}(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title STRING NOT NULL DEFAULT "",

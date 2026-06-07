@@ -49,6 +49,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final visibilityState = ref.watch(visibilityProvider);
+    final authState = ref.watch(authProvider);
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       body: SizedBox(
@@ -129,6 +130,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           onTapOutside: (_){
                             emailF.unfocus();
                           },
+                          validator: (value){
+                            if(value == null || value.isEmpty){
+                              return "Email must not empty";
+                            }return null;
+                          },
+                          onEditingComplete: () {
+                            passwordF.requestFocus();
+                          },
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             hint: Text("Enter your Email", style: TextTheme.of(context).labelLarge,)
@@ -143,6 +152,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           obscureText: !visibilityState,
                           onTapOutside: (_){
                             passwordF.unfocus();
+                          },
+                          validator: (value){
+                            if(value == null || value.isEmpty){
+                              return "Password must not empty";
+                            }return null;
                           },
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
@@ -169,12 +183,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ],
                         ),
                         const SizedBox(height: 16,),
-                        ElevatedButton(onPressed: (){}, child: Text("Login"))
+                        ElevatedButton(onPressed: () async{
+                          if(formkey.currentState!.validate() == true){
+                            await ref.read(authProvider.notifier).login(emailC.text, passwordC.text);
+                          }
+                        }, child:  Text("Login"))
                       ],
                     ),
                   )
               ),
-              const SizedBox(height: 16,),
+              const SizedBox(height: 26,),
               InkWell(
                 onTap: (){
                   context.goNamed(AppConst.register);

@@ -13,4 +13,6 @@ class AppConst {
   static const String userTable = 'userTable';
   static const String expenseTypeTable = 'expenseTypeTable';
   static const String expenseTable = 'expenseTable';
+
+  static const String isLogined = "isLogined";
 }

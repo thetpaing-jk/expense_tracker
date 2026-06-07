@@ -1,8 +1,13 @@
+import 'package:expense_tracker/core/services/app_preference_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/services/app_secure_stroage.dart';
 import '../../../core/utils/app_color.dart';
+import '../../../core/utils/app_const.dart';
 import 'providers/login_provider.dart';
+import 'providers/login_provider_state.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -47,6 +52,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
   Widget build(BuildContext context) {
     final visibilityState = ref.watch(visibilityProvider);
     final visibilityState1 = ref.watch(visibilityProvider1);
+    final authState = ref.watch(authProvider);
+    registerListener();
     return Scaffold(
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -112,6 +119,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                           TextFormField(
                             controller: nameC,
                             focusNode: nameF,
+                            validator: (value) {
+                              if(value == null || value.isEmpty){
+                                return "Name should not blank";
+                              }return null;
+                            },
                             onTapOutside: (_){
                               nameF.unfocus();
                             },
@@ -126,6 +138,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                           TextFormField(
                             controller: emailC,
                             focusNode: emailF,
+                            validator: (value){
+                              if(value == null){
+                                return "Email should not blank";
+                              }
+                              else if(value.isEmpty){
+                                  return "Email should not blank";
+                                }else if(!value.endsWith("@gmail.com")){
+                                  return "Email format is wrong";
+                              }return null;
+                            },
                             onTapOutside: (_){
                               emailF.unfocus();
                             },
@@ -140,6 +162,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                           TextFormField(
                             controller: passwordC,
                             focusNode: passwordF,
+                            validator: (value){
+                              if(value == null || value.isEmpty){
+                                return "Password should not blank";
+                              }return null;
+                            },
                             obscureText: !visibilityState,
                             onTapOutside: (_){
                               passwordF.unfocus();
@@ -164,6 +191,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                             controller: confirmPwdC,
                             focusNode: confirmPwdF,
                             obscureText: !visibilityState1,
+                            validator: (value) {
+                              if(value == null || value.isEmpty){
+                                return "Password should not blank";
+                              }else if(value != passwordC.text){
+                                return "Confirm password must same as password";
+                              }return null;
+                            },
                             onTapOutside: (_){
                               confirmPwdF.unfocus();
                             },
@@ -180,16 +214,67 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                               }, icon: visibilityState1 == false ? Icon(Icons.visibility_off) : Icon(Icons.visibility))
                             ),
                           ),
-                          const SizedBox(height: 16,),
-                          ElevatedButton(onPressed: (){}, child: Text("Register"))
+                          const SizedBox(height: 24,),
+                          ElevatedButton(onPressed: () async{
+                            if(formkey.currentState!.validate() == true){
+                              await ref.read(authProvider.notifier).register(emailC.text, nameC.text, passwordC.text);
+                            }
+                          }, child: switch (authState) {
+                            LoginFormState() => Text("Register"),
+                            LoginLoadingState() => Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Registering..."),
+                                SizedBox(width: 24,),
+                                SizedBox(
+                                  width: 35,
+                                  height: 35,
+                                  child: CircularProgressIndicator(color: AppColor.primaryColor,),
+                                )
+                            ],),
+                            LoginSuccessState() => Text("Register"),
+                            LoginErrorState() => Text("Register"),
+                          })
                         ],
                       ),
                     )
                 ),
+                const SizedBox(height: 24,),
+                InkWell(
+                  onTap: (){
+                    context.goNamed(AppConst.login);
+                  },
+                  child: Text.rich(
+                    TextSpan(
+                      text: "Already have an account?",
+                      style: TextTheme.of(context).labelLarge,
+                      children: [
+                        TextSpan(
+                          text: " Login",
+                          style: TextTheme.of(context).labelLarge!.copyWith(
+                            color: AppColor.buttonColor
+                          )
+                        )
+                      ]
+                    ),
+                  ),
+                )
             ],
           ),
         ),
       ),
     );
+  }
+  void registerListener()async{
+    ref.listen(authProvider, (p,next){
+      if(next is LoginSuccessState){
+        // SharedPreferencesUtils.setBool(AppConst.isLogined, true);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text("Successfully Registered")));
+        context.goNamed(AppConst.login);
+      }else if(next is LoginErrorState){
+        String errorMessage = next.errorMessage.replaceAll("Expection ", "");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(errorMessage), duration: Duration(seconds: 5),));
+      }
+    });
   }
 }
