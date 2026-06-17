@@ -1,9 +1,7 @@
-import 'package:expense_tracker/core/services/app_preference_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/services/app_secure_stroage.dart';
 import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import 'providers/login_provider.dart';
@@ -227,8 +225,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 Text("Registering..."),
                                 SizedBox(width: 24,),
                                 SizedBox(
-                                  width: 35,
-                                  height: 35,
+                                  width: 25,
+                                  height: 25,
                                   child: CircularProgressIndicator(color: AppColor.primaryColor,),
                                 )
                             ],),

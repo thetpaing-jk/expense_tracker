@@ -8,6 +8,7 @@ import '../models/user_model.dart';
 abstract class AuthLocalDataSource{
   Future<void> logout();
   Future<void> register(String username, String email, String password);
+  Future<UserModel?> getUserData(String email);
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource{
@@ -26,7 +27,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource{
       await db.insert(AppConst.userTable, userData);
     } catch (e) {
       debugPrint("auth_local_datasource [register] error : $e");
-      throw Exception("auth_local_datasource [register] error : $e");
+      throw Exception("$e");
     }
   }
 
@@ -34,6 +35,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource{
   Future<void> logout() {
     // TODO: implement logout
     throw UnimplementedError();
+  }
+  
+  @override
+  Future<UserModel?> getUserData(String email) async{
+    try {
+      Database db = await _databaseService.database;
+      List<Map<String,dynamic>> data = await db.query(AppConst.userTable, where: "email = ?", whereArgs: [email], limit: 1);
+      if(data.isNotEmpty){
+        UserModel user = UserModel.fromJson(data.first);
+        return user;
+      }return null;
+    } catch (e) {
+      debugPrint("auth_local_datasource [get user] error : $e");
+      throw Exception("$e");
+    }
   }
   
 }

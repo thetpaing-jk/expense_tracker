@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/services/app_preference_helper.dart';
 import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import 'providers/login_provider.dart';
+import 'providers/login_provider_state.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -50,6 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final visibilityState = ref.watch(visibilityProvider);
     final authState = ref.watch(authProvider);
+    loginListener();
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       body: SizedBox(
@@ -175,7 +178,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            TextButton(onPressed: (){}, child: Text("Forgot Password?",
+                            TextButton(onPressed: (){
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Not implement yet")));
+                            }, child: Text("Forgot Password?",
                               style: TextTheme.of(context).bodyMedium!.copyWith(
                                 color: AppColor.buttonColor
                               ),
@@ -187,7 +192,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           if(formkey.currentState!.validate() == true){
                             await ref.read(authProvider.notifier).login(emailC.text, passwordC.text);
                           }
-                        }, child:  Text("Login"))
+                        }, child: switch (authState) {
+                            LoginFormState() => Text("Login"),
+                            LoginLoadingState() => Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Logging In..."),
+                                SizedBox(width: 24,),
+                                SizedBox(
+                                  width: 25,
+                                  height: 25,
+                                  child: CircularProgressIndicator(color: AppColor.primaryColor,),
+                                )
+                            ],),
+                            LoginSuccessState() => Text("Login"),
+                            LoginErrorState() => Text("Login"),
+                          })
                       ],
                     ),
                   )
@@ -217,5 +237,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
       ),
     );
+  }
+
+  void loginListener() async{
+    ref.listen(authProvider, (p,next){
+      if(next is LoginSuccessState){
+        String message = next.message;
+        SharedPreferencesUtils.setBool(AppConst.isLogined, true);
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+        context.goNamed(AppConst.home);
+      }else if(next is LoginErrorState){
+        String errorMessage = next.errorMessage.replaceAll("Exception ", "");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      }
+    });
   }
 }

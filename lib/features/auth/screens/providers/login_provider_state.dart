@@ -1,3 +1,5 @@
+import '../../data/models/user_model.dart';
+
 sealed class LoginProviderState {}
 
 class LoginLoadingState extends LoginProviderState{}
@@ -5,7 +7,8 @@ class LoginFormState extends LoginProviderState{}
 
 class LoginSuccessState extends LoginProviderState{
   String message;
-  LoginSuccessState({required this.message});
+  UserModel userData;
+  LoginSuccessState({required this.message, required this.userData});
 }
 
 class LoginErrorState extends LoginProviderState{

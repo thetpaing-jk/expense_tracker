@@ -1,4 +1,6 @@
+import 'package:expense_tracker/features/auth/data/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/rendering.dart';
 
 import '../datasource/auth_remote_datasource.dart';
 import '../../domain/repositories/login_repository.dart';
@@ -42,6 +44,19 @@ class LoginRepositoryImpl implements LoginRepository{
       return null;
     } catch (e) {
       throw Exception("Login repository error [register] : $e");
+    }
+  }
+
+  @override
+  Future<UserModel> getUser(String email) async{
+    try {
+      UserModel? user = await authLocalDatasource.getUserData(email);
+      if(user != null){
+        return user;
+      }throw Exception("There is user with this email");
+    } catch (e) {
+      debugPrint("Login repository error [get user] error : $e");
+      throw Exception("Login repository error [get user] error : $e");
     }
   }
 }

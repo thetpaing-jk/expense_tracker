@@ -33,7 +33,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
     } catch (e) {
-      throw Exception("auth_remote_datasource error [login] : $e");
+      throw Exception("$e");
     }
   }
 
@@ -48,7 +48,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
     } catch (e) {
-      throw Exception("auth_remote_datasource error [register] : $e");
+      throw Exception("$e");
     }
   }
 
