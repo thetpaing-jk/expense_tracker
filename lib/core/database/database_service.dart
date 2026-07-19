@@ -56,19 +56,20 @@ class DatabaseService{
             await txn.execute("""
               Create table ${AppConst.expenseTypeTable}(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                icon INTEGER NOT NULL DEFAULT "",
-                name STRING NOT NULL DEFAULT "",
-                color INTEGER NOT NULL DEFAULT ""
+                title TEXT NOT NULL DEFAULT "",
+                subtitle TEXT NOT NULL DEFAULT "",
+                icon INTEGER NOT NULL DEFAULT 0,
+                color INTEGER NOT NULL DEFAULT 0
               )
             """);
             await txn.execute("""
               Create table ${AppConst.expenseTable}(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title STRING NOT NULL DEFAULT "",
+                title TEXT NOT NULL DEFAULT "",
                 amount DOUBLE NOT NULL DEFAULT 0.0,
                 type INTEGER NOT NULL DEFAULT 1,
-                date STRING NOT NULL DEFAULT "",
-                note STRING NOT NULL DEFAULT "",
+                date TEXT NOT NULL DEFAULT "",
+                note TEXT NOT NULL DEFAULT "",
                 FOREIGN KEY (type) REFERENCES ${AppConst.expenseTypeTable} (id)
                   ON DELETE CASCADE
                   ON UPDATE CASCADE

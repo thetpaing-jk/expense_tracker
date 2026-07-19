@@ -19,6 +19,9 @@ class _RootWidgetState extends ConsumerState<RootWidget> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navShellProvider.notifier).state = widget.navigationShell;
+    });
     navigationList = [
       NavigationItem(icon: Icons.home, index: 0),
       NavigationItem(icon: Icons.wallet, index: 1),
@@ -106,9 +109,14 @@ class _NavigationItemState extends ConsumerState<NavigationItem>
   @override
   Widget build(BuildContext context) {
     final navProvider = ref.watch(navigationProvider);
+    final navShell = ref.watch(navShellProvider);
     return GestureDetector(
       onTap: () {
         ref.read(navigationProvider.notifier).state = widget.index;
+        navShell!.goBranch(
+          widget.index,
+          initialLocation: widget.index == navShell.currentIndex,
+        );
         iconAnimationController.forward();
         Future.delayed(Duration(milliseconds: 200)).then((_) {
           iconAnimationController.reverse();
@@ -126,7 +134,7 @@ class _NavigationItemState extends ConsumerState<NavigationItem>
               borderRadius: BorderRadius.circular(9),
             ),
           ),
-          SizedBox(height :widget.index == navProvider ? 4 : 0),
+          SizedBox(height: widget.index == navProvider ? 4 : 0),
           AnimatedBuilder(
             animation: iconAnimation,
             builder: (context, _) {

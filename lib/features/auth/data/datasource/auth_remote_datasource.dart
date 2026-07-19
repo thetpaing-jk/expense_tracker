@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserCredential> login({
@@ -33,6 +34,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
     } catch (e) {
+      debugPrint("authlocal datasource error $e");
       throw Exception("$e");
     }
   }

@@ -17,4 +17,7 @@ class LoginUsecase {
   Future<void> loginWithGoogle() async{
     return repository.loginWithGoogle();
   }
+  Future<void> logout() async{
+    return repository.logout();
+  }
 }

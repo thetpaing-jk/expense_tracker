@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -25,6 +26,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource{
       UserModel user = UserModel(username: username, password: password, email: email);
       Map<String,dynamic> userData = user.toJson();
       await db.insert(AppConst.userTable, userData);
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      firestore.collection(AppConst.userTable).add(userData);
     } catch (e) {
       debugPrint("auth_local_datasource [register] error : $e");
       throw Exception("$e");
@@ -42,7 +45,15 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource{
     try {
       Database db = await _databaseService.database;
       List<Map<String,dynamic>> data = await db.query(AppConst.userTable, where: "email = ?", whereArgs: [email], limit: 1);
-      if(data.isNotEmpty){
+      if(data.isEmpty){
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+        final snapshort = await firestore.collection(AppConst.userTable).where("email", isEqualTo: email).get();
+        if(snapshort.docs.isNotEmpty){
+          UserModel user = snapshort.docs.map((e)=>UserModel.fromJson(e.data())).first;
+          return user;
+        }return null;
+      }
+      else if(data.isNotEmpty){
         UserModel user = UserModel.fromJson(data.first);
         return user;
       }return null;

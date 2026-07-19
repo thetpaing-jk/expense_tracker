@@ -43,7 +43,8 @@ class LoginRepositoryImpl implements LoginRepository{
       }
       return null;
     } catch (e) {
-      throw Exception("Login repository error [register] : $e");
+      debugPrint("Login repository error [register] : $e");
+      throw Exception("$e");
     }
   }
 
@@ -53,10 +54,20 @@ class LoginRepositoryImpl implements LoginRepository{
       UserModel? user = await authLocalDatasource.getUserData(email);
       if(user != null){
         return user;
-      }throw Exception("There is user with this email");
+      }throw Exception("There is no user with this email");
     } catch (e) {
       debugPrint("Login repository error [get user] error : $e");
-      throw Exception("Login repository error [get user] error : $e");
+      throw Exception("$e");
+    }
+  }
+  
+  @override
+  Future<void> logout() async{
+    try {
+      await authRemoteDataSource.logout();
+    } catch (e) {
+      debugPrint ("login repository error [logout] : $e");
+      throw Exception("$e");
     }
   }
 }

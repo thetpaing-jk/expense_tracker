@@ -15,3 +15,12 @@ class LoginErrorState extends LoginProviderState{
   String errorMessage;
   LoginErrorState({required this.errorMessage});
 }
+
+class LogoutLoadingState extends LoginProviderState{}
+
+class LogoutSuccessState extends LoginProviderState{
+  String message;
+  LogoutSuccessState({
+    required this.message
+  });
+}

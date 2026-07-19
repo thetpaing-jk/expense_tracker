@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColor{ 
   static final Color primaryColor  = Color(0xff0F172A);
   //surface color
+  // static final Color backgroundColor = Color.fromARGB(255, 30, 47, 77);
   static final Color cardBackgroundColor = Color(0xff1E293B);
   static final Color inputBackgroundColor = Color(0xff263345);
   static final Color buttonColor = Color(0xff60EFAD);

@@ -1,6 +1,7 @@
 import 'package:expense_tracker/features/auth/data/models/user_model.dart';
 import 'package:expense_tracker/features/auth/screens/providers/login_provider_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -32,12 +33,15 @@ class AuthNotifier extends Notifier<LoginProviderState>{
     try {
       state = LoginLoadingState();
       UserCredential? credential = await loginUsecase.login(email, password);
+      debugPrint("Login provider error : $credential");
       if(credential != null){
         UserModel userModel = await userUsecase.getUser(email);
         state = LoginSuccessState(message: "Login Successful!", userData: userModel);
+      }else{
+        state = LoginErrorState(errorMessage: "Login something went wrong");
       }
-      state = LoginErrorState(errorMessage: "Login something went wrong");
     } catch (e) {
+      debugPrint("Login provider : $e");
       state = LoginErrorState(errorMessage: "$e");
     }
   }
@@ -51,6 +55,17 @@ class AuthNotifier extends Notifier<LoginProviderState>{
         state = LoginSuccessState(message: "Successfully Register", userData: userModel);
       }
       state = LoginErrorState(errorMessage: "Register something went wrong");
+    } catch (e) {
+      state = LoginErrorState(errorMessage: "$e");
+    }
+  }
+
+  Future<void> logout() async{
+    try {
+      debugPrint("Logout");
+      state = LogoutLoadingState();
+      await loginUsecase.logout();
+      state = LogoutSuccessState(message: "successfully logout");
     } catch (e) {
       state = LoginErrorState(errorMessage: "$e");
     }

@@ -1,0 +1,82 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+
+import '../../data/models/expense_type_model.dart';
+import '../../domain/providers/expense_repository_provider.dart';
+import '../../domain/usecases/expense_type_usecase.dart';
+import 'expense_type_provider_state.dart';
+
+final expneseIconProvider = StateProvider<String>((ref)=>"bus");
+
+final expneseIconColor = StateProvider<MaterialColor>((ref)=> Colors.yellow);
+
+final expenseTypeProvider = ExpenseTypeNotifierProvider((){
+  return ExpenseTypeNotifier();
+});
+
+typedef ExpenseTypeNotifierProvider = NotifierProvider<ExpenseTypeNotifier,ExpenseTypeProviderState>;
+class ExpenseTypeNotifier extends Notifier<ExpenseTypeProviderState>{
+  ExpenseTypeUsecase get usecase => ref.read(expenseTypeUsecaseProvider);
+  @override
+  ExpenseTypeProviderState build() {
+    return ExpenseTypeFormState();
+  }
+
+  Future<void> createType(ExpenseTypeModel type) async{
+    try {
+      state = ExpenseTypeLoadingState(
+        type: "create"
+      );
+      await usecase.createType(type);
+      List<ExpenseTypeModel> expenseList = await usecase.getAllType();
+      state = ExpenseTypeReadyState(expenseList: expenseList, message: "Successfully Created");
+    } catch (e) {
+      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+    }
+  }
+
+  Future<void> getAllType() async{
+    try {
+      state = ExpenseTypeLoadingState(
+        type: "getAllType"
+      );
+      List<ExpenseTypeModel> expenseTypeList = await usecase.getAllType();
+      state = ExpenseTypeReadyState(expenseList: expenseTypeList, message: "Successfully Fetched");
+    } catch (e) {
+      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+    }
+  }
+
+  Future<void> editType(ExpenseTypeModel type) async{
+    try {
+      state = ExpenseTypeLoadingState(
+        type: "edit"
+      );
+      await usecase.editType(type);
+      List<ExpenseTypeModel> expenseList = await usecase.getAllType();
+      state = ExpenseTypeReadyState(expenseList: expenseList, message: "Successfully Edited");
+    } catch (e) {
+      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+    }
+  }
+
+  Future<void> deleteType(int id) async{
+    final previousState = state;
+    try {
+      if (previousState is ExpenseTypeReadyState) {
+        state = ExpenseTypeReadyState(
+          expenseList: previousState.expenseList
+              .where((expenseType) => expenseType.id != id)
+              .toList(),
+          message: "Successfully Deleted",
+        );
+      }
+      await usecase.deleteType(id);
+    } catch (e) {
+      state = previousState;
+      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+    }
+  }
+
+}

@@ -14,7 +14,7 @@ class UserModel {
   factory UserModel.fromJson(Map<String,dynamic> json) {
     return UserModel(
       username: json['username'], 
-      password: json['password'], 
+      password: "",
       email: json['email'],
       createdAt: DateTime.now().toString()
     );

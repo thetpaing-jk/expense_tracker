@@ -8,7 +8,7 @@ class NumberFormatService {
   }
 
   /// Format number with currency (default USD)
-  static String formatCurrency(num value, {String locale = 'en_US', String symbol = '\$'}) {
+  static String formatCurrency(num value, {String locale = 'en_US', String symbol = '฿ '}) {
     final formatter = NumberFormat.currency(locale: locale, symbol: symbol);
     return formatter.format(value);
   }

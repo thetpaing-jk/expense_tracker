@@ -133,11 +133,11 @@ class AppTheme {
       // ── IconButton ─────────────────────────
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
+          padding: const EdgeInsets.all(0),
           foregroundColor:  AppColor.primaryTextColor,
-          backgroundColor:  AppColor.cardBackgroundColor,
+          backgroundColor:  AppColor.inputBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: AppColor.borderColor),
           ),
         ),
       ),
@@ -237,7 +237,7 @@ class AppTheme {
         bodyLarge:     TextStyle(color: AppColor.primaryTextColor,   fontSize: 16),
         bodyMedium:    TextStyle(color: AppColor.primaryTextColor,   fontSize: 14),
         bodySmall:     TextStyle(color: AppColor.secondaryTextColor, fontSize: 12),
-        labelLarge:    TextStyle(color: AppColor.secondaryTextColor, fontSize: 13, fontWeight: FontWeight.w500),
+        labelLarge:    TextStyle(color: AppColor.secondaryTextColor, fontSize: 13, fontWeight: FontWeight.w600),
         labelMedium:   TextStyle(color: AppColor.secondaryTextColor, fontSize: 12),
         labelSmall:    TextStyle(color: AppColor.placeholderColor,   fontSize: 11),
       ),

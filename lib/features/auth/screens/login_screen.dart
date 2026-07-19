@@ -34,7 +34,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
 
-    _iconGlow = Tween<double>(begin: 0.1, end: 0.55).animate(
+    _iconGlow = Tween<double>(begin: 0.1, end: .6).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeInOut,
@@ -207,6 +207,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             ],),
                             LoginSuccessState() => Text("Login"),
                             LoginErrorState() => Text("Login"),
+                          LogoutLoadingState() => const SizedBox(),
+                          LogoutSuccessState() => Text("Login"),
                           })
                       ],
                     ),
@@ -242,7 +244,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   void loginListener() async{
     ref.listen(authProvider, (p,next){
       if(next is LoginSuccessState){
-        String message = next.message;
         SharedPreferencesUtils.setBool(AppConst.isLogined, true);
         // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
         context.goNamed(AppConst.home);

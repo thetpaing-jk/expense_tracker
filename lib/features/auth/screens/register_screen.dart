@@ -232,6 +232,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                             ],),
                             LoginSuccessState() => Text("Register"),
                             LoginErrorState() => Text("Register"),
+                            LogoutLoadingState() => const SizedBox(),
+                            LogoutSuccessState() => Text("Register"),
                           })
                         ],
                       ),
