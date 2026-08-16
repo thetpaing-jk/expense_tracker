@@ -10,6 +10,7 @@ class AppConst {
   static const String expenseType = '/expenseType';
   static const String expenseTypeCreate = "/expenseTypeCreate";
   static const String settings = '/settings';
+  static const String addExpenseScreen = '/addExpenseScreen';
   // static const String splash = '/';
 
   static const String userTable = 'userTable';

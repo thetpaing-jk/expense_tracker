@@ -1,3 +1,4 @@
+import 'package:expense_tracker/features/expense/screens/expense_add.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/screens/login_screen.dart';
@@ -38,6 +39,15 @@ class AppRoutes {
                   pageBuilder: (context, state) {
                     return AppRouteHelper.fadeTransition(child: ExpenseScreen(), key: state.pageKey);
                   },
+                  routes: [
+                    GoRoute(
+                      path: AppConst.addExpenseScreen,
+                      name: AppConst.addExpenseScreen,
+                      pageBuilder: (context, state) {
+                        return AppRouteHelper.slideFromRight(child: AddExpense(), key: state.pageKey);
+                      },
+                    )
+                  ]
                 ),
               ]),
               StatefulShellBranch(routes: [
@@ -50,7 +60,10 @@ class AppRoutes {
                     GoRoute(path: AppConst.expenseTypeCreate,
                       name: AppConst.expenseTypeCreate,
                       pageBuilder: (context, state){
-                        ExpenseTypeModel? type = state.extra as ExpenseTypeModel;
+                        ExpenseTypeModel? type;
+                        if(state.extra != null){
+                          type = state.extra as ExpenseTypeModel;
+                        }
                         return AppRouteHelper.slideFromRight(child: ExpenseTypeCreateScreen(
                           type: type,
                         ), key: state.pageKey);

@@ -9,6 +9,8 @@ import 'expense_type_provider_state.dart';
 
 final expneseIconProvider = StateProvider<String>((ref)=>"bus");
 
+final expenseTypeChooseProvider = StateProvider<ExpenseTypeModel?>((ref)=> null);
+
 final expneseIconColor = StateProvider<MaterialColor>((ref)=> Colors.yellow);
 
 final expenseTypeProvider = ExpenseTypeNotifierProvider((){
