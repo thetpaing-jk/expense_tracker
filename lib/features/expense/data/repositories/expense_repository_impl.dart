@@ -11,8 +11,30 @@ class ExpenseRepositoryImpl implements ExpenseRepository{
     required this.localDatasource
   });
   @override
-  void addExpense(ExpenseModel expense) {
+  Future<void> addExpense(ExpenseModel expense) async{
+    try {
+      await localDatasource.addExpense(expense);
+    } catch (e) {
+      throw Exception("$e");
+    }
+  }
 
+  @override
+  Future<void> editExpense(ExpenseModel expense) async {
+    try {
+      await localDatasource.editExpense(expense);
+    } catch (e) {
+      throw Exception("$e");
+    }
+  }
+
+  @override
+  Future<void> deleteExpense(int expenseId) async {
+    try {
+      await localDatasource.deleteExpense(expenseId);
+    } catch (e) {
+      throw Exception("$e");
+    }
   }
 
   @override
@@ -21,6 +43,27 @@ class ExpenseRepositoryImpl implements ExpenseRepository{
       List<ExpenseTypeModel> expenseList = [];
       expenseList = await localDatasource.getExpenseTypes();
       return expenseList;
+    } catch (e) {
+      throw Exception("$e");
+    }
+  }
+
+  @override
+  Future<List<ExpenseModel>> getExpenseList() async{
+    try {
+      List<ExpenseModel> expenseList = [];
+      expenseList = await localDatasource.getExpenseList();
+      return expenseList;
+    } catch (e) {
+      throw Exception("$e");
+    }
+  }
+
+  @override
+  Future<double> getTotalExpense() async{
+    try {
+      double total = await localDatasource.getTotalExpense();
+      return total;
     } catch (e) {
       throw Exception("$e");
     }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
+import '../../expense/screens/providers/expense_provider.dart';
 import 'providers/expense_type_provider.dart';
 import 'providers/expense_type_provider_state.dart';
 import 'widgets/expense_type_widget.dart';
@@ -27,7 +28,8 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
   @override
   Widget build(BuildContext context) {
     final expenseTypeState = ref.watch(expenseTypeProvider);
-    listenChanges();
+    final expenseListState = ref.watch(expenseListProvider);
+    // listenChanges();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -52,7 +54,17 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
                         (context, index) {
                           final expenseType =
                               expenseTypeState.expenseList[index];
-                          return ExpenseTypeWidget(expenseType: expenseType);
+                          int expenseCount = 0;
+                          expenseListState.whenData((value) {
+                            // debugPrint("The expense List : $value");
+                            expenseCount = value.fold(0, (sum, expense){
+                              if(expense.type == expenseTypeState.expenseList[index].id){
+                                return sum+=1;
+                              }
+                              return sum;
+                            });
+                          },);
+                          return ExpenseTypeWidget(expenseType: expenseType, expenseCount: expenseCount,);
                         },
                         childCount: expenseTypeState.expenseList.length,
                       ),

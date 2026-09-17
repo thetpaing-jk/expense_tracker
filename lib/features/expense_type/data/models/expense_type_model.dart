@@ -33,4 +33,13 @@ class ExpenseTypeModel {
       "icon": icon,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ExpenseTypeModel && id != null && other.id == id;
+  }
+
+  @override
+  int get hashCode => id?.hashCode ?? identityHashCode(this);
 }

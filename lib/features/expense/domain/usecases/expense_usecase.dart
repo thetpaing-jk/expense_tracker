@@ -7,11 +7,26 @@ class ExpenseUsecase {
   ExpenseUsecase({
     required this.repository
   });
-  void addExpense(ExpenseModel expense){
+  Future<void> addExpense(ExpenseModel expense){
     return repository.addExpense(expense);
+  }
+
+  Future<void> editExpense(ExpenseModel expense){
+    return repository.editExpense(expense);
+  }
+
+  Future<void> deleteExpense(int expenseId){
+    return repository.deleteExpense(expenseId);
   }
 
   Future<List<ExpenseTypeModel>> getExpenseTypes(){
     return repository.getExpenseTypes();
+  }
+
+  Future<List<ExpenseModel>> getExpenseList() {
+    return repository.getExpenseList();
+  }
+  Future<double> getTotalExpense() async{
+    return repository.getTotalExpense();
   }
 }

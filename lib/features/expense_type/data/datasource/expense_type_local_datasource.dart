@@ -12,6 +12,7 @@ abstract class ExpenseTypeLocalDatasource{
   Future<void> deleteType(int typeId);
   Future<void> editType(ExpenseTypeModel type);
   Future<List<ExpenseTypeModel>> getAllType();
+  Future<ExpenseTypeModel?> getTypebyId(int typeId);
 }
 
 class ExpenseTypeLocalDatasourceImpl implements ExpenseTypeLocalDatasource {
@@ -67,6 +68,22 @@ class ExpenseTypeLocalDatasourceImpl implements ExpenseTypeLocalDatasource {
       return typeList;
     } catch (e) {
       debugPrint("ExpenseTypeLocalDatasource get All type error : $e");
+      throw Exception("$e");
+    }
+  }
+
+  @override
+  Future<ExpenseTypeModel?> getTypebyId(int typeId) async{
+    try {
+      Database db = await _database.database;
+      List<Map<String,dynamic>> data = await db.query(AppConst.expenseTypeTable, where: "id = ?", whereArgs: [typeId]);
+      ExpenseTypeModel? expenseTypeModel;
+      if(data.isNotEmpty){
+        expenseTypeModel = data.map((element)=> ExpenseTypeModel.fromJson(element)).first;
+      }
+      return expenseTypeModel;
+    } catch (e) {
+      debugPrint("ExpenseTypeLocalDatasource get by typeId type error : $e");
       throw Exception("$e");
     }
   }

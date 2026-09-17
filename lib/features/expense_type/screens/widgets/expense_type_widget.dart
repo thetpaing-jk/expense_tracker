@@ -9,7 +9,8 @@ import '../providers/expense_type_provider.dart';
 
 class ExpenseTypeWidget extends ConsumerWidget {
   final ExpenseTypeModel expenseType;
-  const ExpenseTypeWidget({super.key, required this.expenseType});
+  final int expenseCount;
+  const ExpenseTypeWidget({super.key, required this.expenseType, required this.expenseCount});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,7 +55,7 @@ class ExpenseTypeWidget extends ConsumerWidget {
                       style: TextTheme.of(context).bodyLarge,
                     ),
                     Text(
-                      "${expenseType.subtitle} Expenses",
+                      "$expenseCount Expenses",
                       style: TextTheme.of(context).labelLarge,
                     ),
                   ],

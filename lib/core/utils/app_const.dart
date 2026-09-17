@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppConst {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+  static const String splash = '/splash';
   static const String home = '/dashboard';
   static const String login = '/';
   static const String register = '/register';

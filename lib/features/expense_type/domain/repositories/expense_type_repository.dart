@@ -5,4 +5,5 @@ abstract class ExpenseTypeRepository {
   Future<void> editType(ExpenseTypeModel type);
   Future<void> deleteType(int id);
   Future<List<ExpenseTypeModel>> getAllType();
+  Future<ExpenseTypeModel?> getTypebyId(int typeId);
 }

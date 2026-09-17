@@ -3,5 +3,9 @@ import '../../data/models/expense_model.dart';
 
 abstract class ExpenseRepository {
   Future<List<ExpenseTypeModel>> getExpenseTypes();
-  void addExpense(ExpenseModel expense);
+  Future<void> addExpense(ExpenseModel expense);
+  Future<void> editExpense(ExpenseModel expense);
+  Future<void> deleteExpense(int expenseId);
+  Future<List<ExpenseModel>> getExpenseList();
+  Future<double> getTotalExpense();
 }

@@ -51,10 +51,15 @@ class AppRouteHelper {
   }
 
   // Helper function: Fade
-  static CustomTransitionPage fadeTransition({required Widget child,required LocalKey key}) {
+  static CustomTransitionPage fadeTransition({
+    required Widget child,
+    required LocalKey key,
+    Duration transitionDuration = const Duration(milliseconds: 500),
+  }) {
     return CustomTransitionPage(
       key: key,
       child: child,
+      transitionDuration: transitionDuration,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return FadeTransition(
           opacity: animation,

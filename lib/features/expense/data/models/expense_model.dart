@@ -18,7 +18,7 @@ class ExpenseModel {
     return ExpenseModel(
       id: json['id'],
       title: json['title'],
-      amount: json['amount'],
+      amount: (json['amount'] as num).toDouble(),
       type: json['type'],
       date: json['date'],
       note: json['note'],

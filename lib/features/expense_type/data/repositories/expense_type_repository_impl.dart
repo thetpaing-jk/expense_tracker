@@ -49,4 +49,15 @@ class ExpenseTypeRepositoryImpl implements ExpenseTypeRepository{
       throw Exception("$e");
     }
   }
+
+  @override
+  Future<ExpenseTypeModel?> getTypebyId(int typeId) async{
+    try {
+      ExpenseTypeModel? data = await localDatasource.getTypebyId(typeId);
+      return data;
+    } catch (e) {
+      debugPrint("Expense Repository get type by id Error : $e");
+      throw Exception("$e");
+    }
+  }
 }

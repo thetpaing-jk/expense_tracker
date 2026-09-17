@@ -64,29 +64,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
-                  return Container(
-                    height: 80,
-                    width: 80,
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppColor.borderColor,
-                        width: 1.5,
-                      ),
-                      color: AppColor.cardBackgroundColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          offset: Offset.zero,
-                          blurRadius: 28,
-                          spreadRadius: 2,
-                          color: AppColor.buttonColor.withValues(
-                            alpha: _iconGlow.value,
-                          ),
+                  return Hero(
+                    tag: "icon",
+                    child: Container(
+                      height: 80,
+                      width: 80,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppColor.borderColor,
+                          width: 1.5,
                         ),
-                      ],
+                        color: AppColor.cardBackgroundColor,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: Offset.zero,
+                            blurRadius: 28,
+                            spreadRadius: 2,
+                            color: AppColor.buttonColor.withValues(
+                              alpha: _iconGlow.value,
+                            ),
+                          ),
+                        ],
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   );
                 },
                 child: Image.asset(

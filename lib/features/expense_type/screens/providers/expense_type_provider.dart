@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../../expense/screens/providers/expense_provider.dart';
 import '../../data/models/expense_type_model.dart';
 import '../../domain/providers/expense_repository_provider.dart';
 import '../../domain/usecases/expense_type_usecase.dart';
@@ -12,6 +13,11 @@ final expneseIconProvider = StateProvider<String>((ref)=>"bus");
 final expenseTypeChooseProvider = StateProvider<ExpenseTypeModel?>((ref)=> null);
 
 final expneseIconColor = StateProvider<MaterialColor>((ref)=> Colors.yellow);
+
+final expenseTypeByIdProvider = FutureProvider.family<ExpenseTypeModel?, int>((ref, typeId) {
+  final usecase = ref.read(expenseTypeUsecaseProvider);
+  return usecase.getTypebyId(typeId);
+},);
 
 final expenseTypeProvider = ExpenseTypeNotifierProvider((){
   return ExpenseTypeNotifier();
@@ -75,9 +81,23 @@ class ExpenseTypeNotifier extends Notifier<ExpenseTypeProviderState>{
         );
       }
       await usecase.deleteType(id);
+      ref.invalidate(expenseListProvider);
+      await ref.read(expenseProvider.notifier).getAllExpense();
     } catch (e) {
       state = previousState;
       state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+    }
+  }
+
+  Future<void> getTypebyId(int typeId) async{
+    try {
+      state = ExpenseTypeLoadingState(type: "getTypeById");
+      ExpenseTypeModel? expenseTypeModel = await usecase.getTypebyId(typeId);
+      if(expenseTypeModel != null){
+        state = ExpenseTypeReadyState(expenseList: [expenseTypeModel], message: "");
+      }
+    } catch (e) {
+      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception", ""));
     }
   }
 

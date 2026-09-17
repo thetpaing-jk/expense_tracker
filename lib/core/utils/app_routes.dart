@@ -1,8 +1,10 @@
 import 'package:expense_tracker/features/expense/screens/expense_add.dart';
+import 'package:expense_tracker/features/splash/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
+import '../../features/expense/data/models/expense_model.dart';
 import '../../features/expense/screens/expense.dart';
 import '../../features/expense_type/data/models/expense_type_model.dart';
 import '../../features/expense_type/screens/expense_type.dart';
@@ -17,7 +19,15 @@ import 'app_const.dart';
 class AppRoutes {
   static final GoRouter  routes = GoRouter(
         navigatorKey: AppConst.navigatorKey,
-        initialLocation: SharedPreferencesUtils.getBool(AppConst.isLogined) == true ? AppConst.home : '/',
+        // initialLocation: SharedPreferencesUtils.getBool(AppConst.isLogined) ? AppConst.home : AppConst.login ,
+        initialLocation: AppConst.splash,
+        // redirect: (context, state) {
+        //   if(SharedPreferencesUtils.getBool(AppConst.isLogined)){
+        //     return AppConst.home;
+        //   }else{
+        //     return AppConst.login;
+        //   }
+        // },
         routes: [
           StatefulShellRoute.indexedStack(
             branches: [
@@ -44,7 +54,14 @@ class AppRoutes {
                       path: AppConst.addExpenseScreen,
                       name: AppConst.addExpenseScreen,
                       pageBuilder: (context, state) {
-                        return AppRouteHelper.slideFromRight(child: AddExpense(), key: state.pageKey);
+                        return AppRouteHelper.slideFromRight(
+                          child: AddExpense(
+                            expense: state.extra is ExpenseModel
+                                ? state.extra as ExpenseModel
+                                : null,
+                          ),
+                          key: state.pageKey,
+                        );
                       },
                     )
                   ]
@@ -85,10 +102,21 @@ class AppRoutes {
             }
           ),
           GoRoute(
+            path: AppConst.splash,
+            name: AppConst.splash,
+            pageBuilder: (context, state) {
+              return AppRouteHelper.fadeTransition(child: SplashScreen(), key: state.pageKey);
+            },
+          ),
+          GoRoute(
             path: AppConst.login,
             name: AppConst.login,
             pageBuilder: (context, state) {
-              return AppRouteHelper.fadeTransition(child: LoginScreen(), key: state.pageKey);
+              return AppRouteHelper.fadeTransition(
+                child: LoginScreen(),
+                key: state.pageKey,
+                transitionDuration: const Duration(milliseconds: 800),
+              );
             },
           ),
           GoRoute(path: AppConst.register,

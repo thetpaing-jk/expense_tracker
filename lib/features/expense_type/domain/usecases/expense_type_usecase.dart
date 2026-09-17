@@ -19,4 +19,8 @@ class ExpenseTypeUsecase {
   Future<List<ExpenseTypeModel>> getAllType()async{
     return repository.getAllType();
   }
+
+  Future<ExpenseTypeModel?> getTypebyId(int typeId) async{
+    return repository.getTypebyId(typeId);
+  }
 }
