@@ -26,7 +26,9 @@ class _ExpneseTrackerState extends State<ExpneseTracker> {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Expense Tracker',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       routerConfig: AppRoutes.router,
     );
   }

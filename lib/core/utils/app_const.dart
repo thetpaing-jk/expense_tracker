@@ -12,11 +12,13 @@ class AppConst {
   static const String expenseTypeCreate = "/expenseTypeCreate";
   static const String settings = '/settings';
   static const String addExpenseScreen = '/addExpenseScreen';
+  static const String budget = "/budget";
   // static const String splash = '/';
 
   static const String userTable = 'userTable';
   static const String expenseTypeTable = 'expenseTypeTable';
   static const String expenseTable = 'expenseTable';
+  static const String budgetTable = 'budgetTable';
 
   static const String isLogined = "isLogined";
 

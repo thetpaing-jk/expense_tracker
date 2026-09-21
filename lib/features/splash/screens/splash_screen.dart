@@ -73,9 +73,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future.delayed(Duration(milliseconds: 3500));
     if (mounted) {
       if (SharedPreferencesUtils.getBool(AppConst.isLogined)) {
-        context.pushNamed(AppConst.home);
+        context.goNamed(AppConst.home);
       } else {
-        context.pushNamed(AppConst.login);
+        context.goNamed(AppConst.login);
       }
     }
   }
@@ -85,6 +85,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     _opacityAnimationController.dispose();
     _slideAnimationController.dispose();
     _progressAnimationController.dispose();
+    _iconShadowAnimationController.dispose();
     super.dispose();
   }
 

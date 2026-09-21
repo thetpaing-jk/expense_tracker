@@ -1,4 +1,7 @@
+import 'package:expense_tracker/features/budget/screens/budget_screen.dart';
 import 'package:expense_tracker/features/expense/screens/expense_add.dart';
+import 'package:expense_tracker/features/lucky_draw/screens/lucky_draw_create_screen.dart';
+import 'package:expense_tracker/features/lucky_draw/screens/lucky_draw_screen.dart';
 import 'package:expense_tracker/features/splash/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -123,6 +126,32 @@ class AppRoutes {
             name: AppConst.register,
             pageBuilder: (context, state) {
               return AppRouteHelper.fadeTransition(child: RegisterScreen(), key: state.pageKey);
+            },
+          ),
+          GoRoute(path: AppConst.budget,
+            name: AppConst.budget,
+            pageBuilder: (context, state) {
+              return AppRouteHelper.slideFromRight(child: BudgetScreen(), key: state.pageKey);
+            },
+          ),
+          GoRoute(
+            path: '/lucky-draw/create',
+            name: 'lucky-draw-create',
+            pageBuilder: (context, state) {
+              return AppRouteHelper.slideFromRight(
+                child: LuckyDrawCreateScreen(),
+                key: state.pageKey,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/lucky-draw',
+            name: 'lucky-draw',
+            pageBuilder: (context, state) {
+              return AppRouteHelper.slideFromRight(
+                child: LuckyDrawScreen(),
+                key: state.pageKey,
+              );
             },
           )
         ],

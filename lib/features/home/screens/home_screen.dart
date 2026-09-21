@@ -18,7 +18,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       DraggableScrollableController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     draggableScrollableController.addListener(() {
       debugPrint(
@@ -41,7 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final dropDownValue = ref.watch(dropdownProvider);
-    final draggableValue = ref.watch(draggableProvider);
+    // final draggableValue = ref.watch(draggableProvider);
     return Scaffold(
       body: Stack(
         children: [

@@ -8,7 +8,7 @@ class DatabaseService{
     static final DatabaseService instance = DatabaseService._();
 
     String dbName = "expense_tracker.db";
-    int dbVersion = 1;
+    int dbVersion = 3;
 
     Database? _db;
 
@@ -39,7 +39,12 @@ class DatabaseService{
     }
 
     Future<void> _dbUpgrade(Database db, int oldVersion, int newVersion) async{
-        // To migrate the database
+        if (oldVersion < 2) {
+            await _createBudgetTable(db);
+        }
+        if (oldVersion < 3) {
+            await _createLuckyDrawTables(db);
+        }
     }
 
     Future<void> _dbCreate(Database db, int version) async{
@@ -75,6 +80,44 @@ class DatabaseService{
                   ON UPDATE CASCADE
               )
             """);
+            await _createBudgetTable(txn);
+            await _createLuckyDrawTables(txn);
         });
+    }
+
+    Future<void> _createBudgetTable(DatabaseExecutor db) async {
+        await db.execute("""
+          CREATE TABLE IF NOT EXISTS ${AppConst.budgetTable}(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            amount REAL NOT NULL CHECK(amount > 0)
+          )
+        """);
+    }
+
+    Future<void> _createLuckyDrawTables(DatabaseExecutor db) async {
+        await db.execute("""
+          CREATE TABLE IF NOT EXISTS luckyDrawTable(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            totalBudget REAL NOT NULL,
+            period TEXT NOT NULL,
+            days INTEGER NOT NULL,
+            maxBudget REAL NOT NULL,
+            savedMoney REAL NOT NULL,
+            createdAt TEXT NOT NULL
+          )
+        """);
+        await db.execute("""
+          CREATE TABLE IF NOT EXISTS luckyDrawTicketTable(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            drawId INTEGER NOT NULL,
+            ticketNo INTEGER NOT NULL,
+            amount REAL NOT NULL,
+            drawn INTEGER NOT NULL DEFAULT 0,
+            drawnAt TEXT,
+            FOREIGN KEY (drawId) REFERENCES luckyDrawTable (id)
+              ON DELETE CASCADE
+              ON UPDATE CASCADE
+          )
+        """);
     }
 }

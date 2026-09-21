@@ -5,241 +5,333 @@ import 'app_color.dart';
 
 class AppTheme {
   AppTheme._();
- 
-  static ThemeData get darkTheme {
+
+  static ThemeData get lightTheme => _buildTheme(Brightness.light);
+
+  static ThemeData get darkTheme => _buildTheme(Brightness.dark);
+
+  static ThemeData _buildTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? AppColor.primaryColor
+        : const Color(0xFFF8FAFC);
+    final cardBackgroundColor = isDark
+        ? AppColor.cardBackgroundColor
+        : const Color(0xFFFFFFFF);
+    final inputBackgroundColor = isDark
+        ? AppColor.inputBackgroundColor
+        : const Color(0xFFF1F5F9);
+    final buttonColor = isDark ? AppColor.buttonColor : const Color(0xFF087F5B);
+    final onButton = isDark ? AppColor.onButton : const Color(0xFFFFFFFF);
+    final primaryTextColor = isDark
+        ? AppColor.primaryTextColor
+        : const Color(0xFF0F172A);
+    final secondaryTextColor = isDark
+        ? AppColor.secondaryTextColor
+        : const Color(0xFF475569);
+    final placeholderColor = isDark
+        ? AppColor.placeholderColor
+        : const Color(0xFF64748B);
+    final borderColor = isDark ? AppColor.borderColor : const Color(0xFFCBD5E1);
+    final dangerColor = isDark ? AppColor.dangerColor : const Color(0xFFB91C1C);
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
- 
+      brightness: brightness,
+
       // ── Color scheme ───────────────────────
-      colorScheme:  ColorScheme.dark(
-        primary:        AppColor.buttonColor,
-        onPrimary:      AppColor.onButton,
-        secondary:      AppColor.cardBackgroundColor,
-        onSecondary:    AppColor.primaryTextColor,
-        surface:        AppColor.cardBackgroundColor,
-        onSurface:      AppColor.primaryTextColor,
-        error:          AppColor.dangerColor,
-        onError:        AppColor.primaryTextColor,
-        outline:        AppColor.borderColor,
-        outlineVariant: AppColor.borderColor,
-        surfaceContainerHighest: AppColor.inputBackgroundColor,
-      ),
- 
-      scaffoldBackgroundColor: AppColor.primaryColor,
- 
+      colorScheme:
+          ColorScheme.fromSeed(
+            seedColor: buttonColor,
+            brightness: brightness,
+          ).copyWith(
+            primary: buttonColor,
+            onPrimary: onButton,
+            secondary: cardBackgroundColor,
+            onSecondary: secondaryTextColor,
+            surface: cardBackgroundColor,
+            onSurface: primaryTextColor,
+            error: dangerColor,
+            onError: isDark ? primaryTextColor : Colors.white,
+            outline: borderColor,
+            outlineVariant: borderColor,
+            surfaceContainerHighest: inputBackgroundColor,
+          ),
+
+      scaffoldBackgroundColor: backgroundColor,
+
       // ── AppBar ─────────────────────────────
-      appBarTheme:  AppBarTheme(
-        backgroundColor:     AppColor.primaryColor,
-        foregroundColor:     AppColor.primaryTextColor,
-        surfaceTintColor:    Colors.transparent,
-        elevation:           0,
-        centerTitle:         true,
+      appBarTheme: AppBarTheme(
+        backgroundColor: backgroundColor,
+        foregroundColor: primaryTextColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
         titleTextStyle: TextStyle(
-          color:      AppColor.primaryTextColor,
-          fontSize:   17,
+          color: primaryTextColor,
+          fontSize: 17,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
         ),
-        iconTheme: IconThemeData(color: AppColor.primaryTextColor),
+        iconTheme: IconThemeData(color: primaryTextColor),
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor:           Colors.transparent,
-          statusBarIconBrightness:  Brightness.light,
-          statusBarBrightness:      Brightness.dark,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         ),
       ),
- 
+
       // ── Card ───────────────────────────────
       cardTheme: CardThemeData(
-        color:        AppColor.cardBackgroundColor,
+        color: cardBackgroundColor,
         surfaceTintColor: Colors.transparent,
-        elevation:    0,
-        margin:       EdgeInsets.zero,
+        elevation: 0,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: AppColor.borderColor, width: 1),
+          side: BorderSide(color: borderColor, width: 1),
         ),
       ),
- 
+
       // ── Input / TextField ──────────────────
       inputDecorationTheme: InputDecorationTheme(
-        filled:      true,
-        fillColor:   AppColor.inputBackgroundColor,
-        hintStyle:   TextStyle(color: AppColor.placeholderColor, fontSize: 15),
-        labelStyle:  TextStyle(color: AppColor.secondaryTextColor, fontSize: 13),
-        prefixIconColor: AppColor.secondaryTextColor,
-        suffixIconColor: AppColor.secondaryTextColor,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        filled: true,
+        fillColor: inputBackgroundColor,
+        hintStyle: TextStyle(color: placeholderColor, fontSize: 15),
+        labelStyle: TextStyle(color: secondaryTextColor, fontSize: 13),
+        prefixIconColor: secondaryTextColor,
+        suffixIconColor: secondaryTextColor,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.borderColor, width: 1.5),
+          borderSide: BorderSide(color: borderColor, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.borderColor, width: 1.5),
+          borderSide: BorderSide(color: borderColor, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.buttonColor, width: 1.5),
+          borderSide: BorderSide(color: buttonColor, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.dangerColor, width: 1.5),
+          borderSide: BorderSide(color: dangerColor, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.dangerColor, width: 1.5),
+          borderSide: BorderSide(color: dangerColor, width: 1.5),
         ),
       ),
- 
+
       // ── ElevatedButton ─────────────────────
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor:   AppColor.buttonColor,
-          foregroundColor:   AppColor.onButton,
-          disabledBackgroundColor: AppColor.borderColor,
-          disabledForegroundColor: AppColor.placeholderColor,
-          elevation:         0,
-          minimumSize:       const Size(double.infinity, 52),
+          backgroundColor: buttonColor,
+          foregroundColor: onButton,
+          disabledBackgroundColor: borderColor,
+          disabledForegroundColor: placeholderColor,
+          elevation: 0,
+          minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
           textStyle: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0,
           ),
         ),
       ),
- 
+
       // ── TextButton ─────────────────────────
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColor.buttonColor,
+          foregroundColor: buttonColor,
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
- 
+
       // ── OutlinedButton ─────────────────────
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColor.buttonColor,
-          side: BorderSide(color: AppColor.buttonColor, width: 1.5),
+          foregroundColor: buttonColor,
+          side: BorderSide(color: buttonColor, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           minimumSize: const Size(double.infinity, 52),
         ),
       ),
- 
+
       // ── IconButton ─────────────────────────
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
           padding: const EdgeInsets.all(0),
-          foregroundColor:  AppColor.primaryTextColor,
-          backgroundColor:  AppColor.inputBackgroundColor,
+          foregroundColor: primaryTextColor,
+          backgroundColor: inputBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
         ),
       ),
- 
+
       // ── BottomNavigationBar ────────────────
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor:      AppColor.cardBackgroundColor,
-        selectedItemColor:    AppColor.buttonColor,
-        unselectedItemColor:  AppColor.placeholderColor,
-        selectedLabelStyle:   TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w400),
-        type:      BottomNavigationBarType.fixed,
+        backgroundColor: cardBackgroundColor,
+        selectedItemColor: buttonColor,
+        unselectedItemColor: placeholderColor,
+        selectedLabelStyle: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w400,
+        ),
+        type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
- 
+
       // ── Divider ────────────────────────────
       dividerTheme: DividerThemeData(
-        color:     AppColor.borderColor,
+        color: borderColor,
         thickness: 1,
-        space:     1,
+        space: 1,
       ),
- 
+
       // ── ListTile ───────────────────────────
       listTileTheme: ListTileThemeData(
-        tileColor:       AppColor.cardBackgroundColor,
-        iconColor:       AppColor.secondaryTextColor,
-        textColor:       AppColor.primaryTextColor,
-        titleTextStyle:  TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColor.primaryTextColor),
-        subtitleTextStyle: TextStyle(fontSize: 12, color: AppColor.secondaryTextColor),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+        tileColor: cardBackgroundColor,
+        iconColor: secondaryTextColor,
+        textColor: primaryTextColor,
+        titleTextStyle: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: primaryTextColor,
+        ),
+        subtitleTextStyle: TextStyle(fontSize: 12, color: secondaryTextColor),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
       ),
- 
+
       // ── Chip ───────────────────────────────
       chipTheme: ChipThemeData(
-        backgroundColor:    AppColor.inputBackgroundColor,
-        selectedColor:      AppColor.buttonColor,
-        labelStyle:         TextStyle(color: AppColor.primaryTextColor, fontSize: 12),
-        side: BorderSide(color: AppColor.borderColor),
+        backgroundColor: inputBackgroundColor,
+        selectedColor: buttonColor,
+        labelStyle: TextStyle(color: primaryTextColor, fontSize: 12),
+        side: BorderSide(color: borderColor),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       ),
- 
+
       // ── SnackBar ───────────────────────────
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColor.cardBackgroundColor,
-        contentTextStyle: TextStyle(color: AppColor.primaryTextColor, fontSize: 14),
+        backgroundColor: cardBackgroundColor,
+        contentTextStyle: TextStyle(color: primaryTextColor, fontSize: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
- 
+
       // ── Dialog ─────────────────────────────
       dialogTheme: DialogThemeData(
-        backgroundColor:  AppColor.cardBackgroundColor,
+        backgroundColor: cardBackgroundColor,
         surfaceTintColor: Colors.transparent,
-        elevation:        0,
-        titleTextStyle:   TextStyle(color: AppColor.primaryTextColor, fontSize: 18, fontWeight: FontWeight.w700),
-        contentTextStyle: TextStyle(color: AppColor.secondaryTextColor, fontSize: 14),
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          color: primaryTextColor,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+        contentTextStyle: TextStyle(color: secondaryTextColor, fontSize: 14),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColor.borderColor),
+          side: BorderSide(color: borderColor),
         ),
       ),
- 
+
       // ── Switch ─────────────────────────────
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected) ? AppColor.onButton : AppColor.placeholderColor),
-        trackColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected) ? AppColor.buttonColor : AppColor.inputBackgroundColor),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? onButton
+              : placeholderColor,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? buttonColor
+              : inputBackgroundColor,
+        ),
       ),
- 
+
       // ── DropdownMenu ───────────────────────
       dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(AppColor.cardBackgroundColor),
+          backgroundColor: WidgetStatePropertyAll(cardBackgroundColor),
           surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: AppColor.borderColor),
+              side: BorderSide(color: borderColor),
             ),
           ),
         ),
       ),
- 
+
       // ── Typography ─────────────────────────
       textTheme: TextTheme(
-        displayLarge:  TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w700),
-        displayMedium: TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w700),
-        displaySmall:  TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w700),
-        headlineLarge: TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w700),
-        headlineMedium:TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w600),
-        headlineSmall: TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w600),
-        titleLarge:    TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w600, fontSize: 18),
-        titleMedium:   TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w600, fontSize: 16),
-        titleSmall:    TextStyle(color: AppColor.primaryTextColor,   fontWeight: FontWeight.w500, fontSize: 14),
-        bodyLarge:     TextStyle(color: AppColor.primaryTextColor,   fontSize: 16),
-        bodyMedium:    TextStyle(color: AppColor.primaryTextColor,   fontSize: 14),
-        bodySmall:     TextStyle(color: AppColor.secondaryTextColor, fontSize: 12),
-        labelLarge:    TextStyle(color: AppColor.secondaryTextColor, fontSize: 13, fontWeight: FontWeight.w600),
-        labelMedium:   TextStyle(color: AppColor.secondaryTextColor, fontSize: 12),
-        labelSmall:    TextStyle(color: AppColor.placeholderColor,   fontSize: 11),
+        displayLarge: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        displayMedium: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        displaySmall: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        headlineLarge: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        headlineMedium: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w600,
+        ),
+        headlineSmall: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w600,
+        ),
+        titleLarge: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+        ),
+        titleMedium: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+        titleSmall: TextStyle(
+          color: primaryTextColor,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+        bodyLarge: TextStyle(color: primaryTextColor, fontSize: 16),
+        bodyMedium: TextStyle(color: primaryTextColor, fontSize: 14),
+        bodySmall: TextStyle(color: secondaryTextColor, fontSize: 12),
+        labelLarge: TextStyle(
+          color: secondaryTextColor,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+        labelMedium: TextStyle(color: secondaryTextColor, fontSize: 12),
+        labelSmall: TextStyle(color: placeholderColor, fontSize: 11),
       ),
     );
   }

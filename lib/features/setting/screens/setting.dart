@@ -8,6 +8,8 @@ import '../../../core/services/app_preference_helper.dart';
 import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import '../../auth/screens/providers/login_provider.dart';
+import '../../lucky_draw/screens/providers/lucky_draw_provider.dart';
+import '../../lucky_draw/screens/providers/lucky_draw_provider_state.dart';
 
 class SettingScreen extends ConsumerStatefulWidget {
   const SettingScreen({super.key});
@@ -102,7 +104,15 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                         icon: Icons.money_outlined,
                         iconColor: AppColor.buttonColor,
                         label: "Budget Setting",
-                        onTap: () {},
+                        onTap: () {
+                          context.pushNamed(AppConst.budget);
+                        },
+                      ),
+                      SettingItems(
+                        icon: Icons.casino_outlined,
+                        iconColor: AppColor.buttonColor,
+                        label: "Lucky Draw",
+                        onTap: _openLuckyDraw,
                       ),
                       SettingItems(
                         icon: Icons.upload_file,
@@ -176,6 +186,24 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         context.goNamed(AppConst.login);
       }
     });
+  }
+
+  Future<void> _openLuckyDraw() async {
+    await ref.read(luckyDrawProvider.notifier).getCurrentDraw();
+    if (!mounted) return;
+
+    switch (ref.read(luckyDrawProvider)) {
+      case LuckyDrawReadyState():
+        context.push('/lucky-draw');
+      case LuckyDrawInitialState():
+        context.push('/lucky-draw/create');
+      case LuckyDrawErrorState(:final errorMessage):
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      case LuckyDrawLoadingState():
+        break;
+    }
   }
 }
 
