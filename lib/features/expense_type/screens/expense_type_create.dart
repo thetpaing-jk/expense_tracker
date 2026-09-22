@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import '../data/models/expense_type_model.dart';
 import 'providers/expense_type_provider.dart';
@@ -28,6 +27,7 @@ class _ExpenseTypeCreateScreenState
   }
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final expenseTypeState = ref.watch(expenseTypeProvider);
     final iconProvider = ref.watch(expneseIconProvider);
     final iconColorProvider = ref.watch(expneseIconColor);
@@ -46,7 +46,7 @@ class _ExpenseTypeCreateScreenState
               "Save",
               style: TextTheme.of(
                 context,
-              ).titleMedium!.copyWith(color: AppColor.buttonColor),
+              ).titleMedium!.copyWith(color: colors.primary),
             ),
           ),
         ],
@@ -87,7 +87,7 @@ class _ExpenseTypeCreateScreenState
                     Text(
                       "Type Name",
                       style: TextTheme.of(context).titleSmall!.copyWith(
-                        color: AppColor.secondaryTextColor,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -106,10 +106,10 @@ class _ExpenseTypeCreateScreenState
                         decoration: InputDecoration(
                           hint: Text("Enter type name"),
                           hintStyle: TextTheme.of(context).labelLarge!.copyWith(
-                            color: AppColor.placeholderColor,
+                            color: colors.onSurfaceVariant,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColor.borderColor),
+                            borderSide: BorderSide(color: colors.outline),
                           ),
                         ),
                       ),
@@ -118,7 +118,7 @@ class _ExpenseTypeCreateScreenState
                     Text(
                       "Choose Icon",
                       style: TextTheme.of(context).titleSmall!.copyWith(
-                        color: AppColor.secondaryTextColor,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -143,7 +143,7 @@ class _ExpenseTypeCreateScreenState
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: AppColor.cardBackgroundColor,
+                                    color: colors.surface,
                                     border: Border.all(
                                       color: iconProvider == AppConst.iconList[index]
                                           ? iconColorProvider
@@ -169,7 +169,7 @@ class _ExpenseTypeCreateScreenState
                     Text(
                       "Choose Color",
                       style: TextTheme.of(context).titleSmall!.copyWith(
-                        color: AppColor.secondaryTextColor,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -218,63 +218,66 @@ class _ExpenseTypeCreateScreenState
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () async{
-                        if(formKey.currentState!.validate()){
-                          if(widget.type != null){
-                            ExpenseTypeModel type = ExpenseTypeModel(
-                              id: widget.type!.id,
-                              title: typeNameC.text,
-                              subtitle: "0",
-                              iconColor: AppConst.colorList.indexWhere(
-                                (color) => color == iconColorProvider,
-                              ),
-                              icon: AppConst.iconList.indexOf(iconProvider),
-                            );
-                            await ref.read(expenseTypeProvider.notifier).editType(type);
-                          }else{
-                            ExpenseTypeModel type = ExpenseTypeModel(
-                              title: typeNameC.text,
-                              subtitle: "0",
-                              iconColor: AppConst.colorList.indexWhere(
-                                (color) => color == iconColorProvider,
-                              ),
-                              icon: AppConst.iconList.indexOf(iconProvider),
-                            );
-                            await ref.read(expenseTypeProvider.notifier).createType(type);
+                    Hero(
+                      tag: 'expense-type-add-fab${widget.type?.id ?? ""}',
+                      child: ElevatedButton(
+                        onPressed: () async{
+                          if(formKey.currentState!.validate()){
+                            if(widget.type != null){
+                              ExpenseTypeModel type = ExpenseTypeModel(
+                                id: widget.type!.id,
+                                title: typeNameC.text,
+                                subtitle: "0",
+                                iconColor: AppConst.colorList.indexWhere(
+                                  (color) => color == iconColorProvider,
+                                ),
+                                icon: AppConst.iconList.indexOf(iconProvider),
+                              );
+                              await ref.read(expenseTypeProvider.notifier).editType(type);
+                            }else{
+                              ExpenseTypeModel type = ExpenseTypeModel(
+                                title: typeNameC.text,
+                                subtitle: "0",
+                                iconColor: AppConst.colorList.indexWhere(
+                                  (color) => color == iconColorProvider,
+                                ),
+                                icon: AppConst.iconList.indexOf(iconProvider),
+                              );
+                              await ref.read(expenseTypeProvider.notifier).createType(type);
+                            }
+                            if(context.mounted){
+                              context.pop();
+                            }
                           }
-                          if(context.mounted){
-                            context.pop();
-                          }
-                        }
-                      },
-                      child:
-                      expenseTypeState is ExpenseTypeLoadingState ?
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.type?.title != null ? "Type Editing..." : "Type Creating...",
-                            style: TextTheme.of(context).bodyLarge!.copyWith(
-                              color: AppColor.onButton,
-                              fontWeight: FontWeight.bold,
+                        },
+                        child:
+                        expenseTypeState is ExpenseTypeLoadingState ?
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.type?.title != null ? "Type Editing..." : "Type Creating...",
+                              style: TextTheme.of(context).bodyLarge!.copyWith(
+                                color: colors.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                            const SizedBox(width: 8,),
+                            SizedBox(
+                              width: 25,
+                              height: 25,
+                              child: CircularProgressIndicator.adaptive(
+                                backgroundColor: colors.onPrimary,
+                              ),
+                            )
+                          ],
+                        )
+                        : Text(
+                          widget.type?.title != null ? "Edit Type" : "Create Type",
+                          style: TextTheme.of(context).bodyLarge!.copyWith(
+                            color: colors.onPrimary,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 8,),
-                          const SizedBox(
-                            width: 25,
-                            height: 25,
-                            child: CircularProgressIndicator.adaptive(
-                              backgroundColor: AppColor.onButton,
-                            ),
-                          )
-                        ],
-                      )
-                      : Text(
-                        widget.type?.title != null ? "Edit Type" : "Create Type",
-                        style: TextTheme.of(context).bodyLarge!.copyWith(
-                          color: AppColor.onButton,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

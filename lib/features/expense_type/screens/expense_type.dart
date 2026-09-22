@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import '../../expense/screens/providers/expense_provider.dart';
 import 'providers/expense_type_provider.dart';
@@ -91,7 +90,7 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
                         vertical: 24,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColor.placeholderColor,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
@@ -112,6 +111,9 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'expense-type-add-fab',
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         onPressed: () {
           ref.read(expneseIconColor.notifier).state = Colors.yellow;
           ref.read(expneseIconProvider.notifier).state = "accommodation";

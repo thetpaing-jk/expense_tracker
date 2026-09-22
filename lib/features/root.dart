@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:expense_tracker/core/utils/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +31,7 @@ class _RootWidgetState extends ConsumerState<RootWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       body: widget.navigationShell,
       bottomNavigationBar: SafeArea(
@@ -48,18 +48,18 @@ class _RootWidgetState extends ConsumerState<RootWidget> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColor.cardBackgroundColor.withValues(alpha: 0.45),
+                  color: colors.surface.withValues(alpha: 0.82),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: colors.outlineVariant,
                     width: 1,
                   ),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.07),
-                      Colors.white.withValues(alpha: 0.02),
+                      colors.surface.withValues(alpha: 0.92),
+                      colors.surface.withValues(alpha: 0.72),
                     ],
                   ),
                 ),
@@ -110,6 +110,7 @@ class _NavigationItemState extends ConsumerState<NavigationItem>
   Widget build(BuildContext context) {
     final navProvider = ref.watch(navigationProvider);
     final navShell = ref.watch(navShellProvider);
+    final colors = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () {
         ref.read(navigationProvider.notifier).state = widget.index;
@@ -130,7 +131,7 @@ class _NavigationItemState extends ConsumerState<NavigationItem>
             width: widget.index == navProvider ? 25 : 0,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColor.buttonColor,
+              color: colors.primary,
               borderRadius: BorderRadius.circular(9),
             ),
           ),

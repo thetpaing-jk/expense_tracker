@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/services/app_preference_helper.dart';
-import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -91,6 +90,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -109,13 +109,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     width: 120,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColor.cardBackgroundColor,
-                      border: Border.all(width: 2, color: AppColor.borderColor),
+                      color: colors.surface,
+                      border: Border.all(width: 2, color: colors.outline),
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         // Close glow, followed by two softer outer aura layers.
                         BoxShadow(
-                          color: AppColor.buttonColor.withValues(
+                          color: colors.primary.withValues(
                             alpha: _iconShadowColor.value,
                           ),
                           blurRadius: 72,
@@ -139,7 +139,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               child: Text(
                 "EXPENSE TRACKER",
                 style: TextTheme.of(context).bodySmall!.copyWith(
-                  color: AppColor.buttonColor,
+                  color: colors.primary,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
                 ),
@@ -163,7 +163,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           Text(
             "v1.0.0",
             style: TextTheme.of(context).labelMedium!.copyWith(
-              color: AppColor.secondaryTextColor.withValues(alpha: .5),
+              color: colors.onSurfaceVariant.withValues(alpha: .5),
             ),
           ),
           const SizedBox(height: 24),

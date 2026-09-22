@@ -8,68 +8,90 @@ import '../../domain/providers/expense_repository_provider.dart';
 import '../../domain/usecases/expense_type_usecase.dart';
 import 'expense_type_provider_state.dart';
 
-final expneseIconProvider = StateProvider<String>((ref)=>"bus");
+final expneseIconProvider = StateProvider<String>((ref) => "bus");
 
-final expenseTypeChooseProvider = StateProvider<ExpenseTypeModel?>((ref)=> null);
+final expenseTypeChooseProvider = StateProvider<ExpenseTypeModel?>(
+  (ref) => null,
+);
 
-final expneseIconColor = StateProvider<MaterialColor>((ref)=> Colors.yellow);
+final expneseIconColor = StateProvider<MaterialColor>((ref) => Colors.yellow);
 
-final expenseTypeByIdProvider = FutureProvider.family<ExpenseTypeModel?, int>((ref, typeId) {
+final expenseTypeByIdProvider = FutureProvider.family<ExpenseTypeModel?, int>((
+  ref,
+  typeId,
+) {
   final usecase = ref.read(expenseTypeUsecaseProvider);
   return usecase.getTypebyId(typeId);
-},);
+});
 
-final expenseTypeProvider = ExpenseTypeNotifierProvider((){
+final expenseTypeListProvider = FutureProvider<List<ExpenseTypeModel>>((ref) {
+  return ref.read(expenseTypeUsecaseProvider).getAllType();
+});
+
+final expenseTypeProvider = ExpenseTypeNotifierProvider(() {
   return ExpenseTypeNotifier();
 });
 
-typedef ExpenseTypeNotifierProvider = NotifierProvider<ExpenseTypeNotifier,ExpenseTypeProviderState>;
-class ExpenseTypeNotifier extends Notifier<ExpenseTypeProviderState>{
+typedef ExpenseTypeNotifierProvider =
+    NotifierProvider<ExpenseTypeNotifier, ExpenseTypeProviderState>;
+
+class ExpenseTypeNotifier extends Notifier<ExpenseTypeProviderState> {
   ExpenseTypeUsecase get usecase => ref.read(expenseTypeUsecaseProvider);
   @override
   ExpenseTypeProviderState build() {
     return ExpenseTypeFormState();
   }
 
-  Future<void> createType(ExpenseTypeModel type) async{
+  Future<void> createType(ExpenseTypeModel type) async {
     try {
-      state = ExpenseTypeLoadingState(
-        type: "create"
-      );
+      state = ExpenseTypeLoadingState(type: "create");
       await usecase.createType(type);
       List<ExpenseTypeModel> expenseList = await usecase.getAllType();
-      state = ExpenseTypeReadyState(expenseList: expenseList, message: "Successfully Created");
+      ref.invalidate(expenseTypeListProvider);
+      state = ExpenseTypeReadyState(
+        expenseList: expenseList,
+        message: "Successfully Created",
+      );
     } catch (e) {
-      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+      state = ExpenseTypeErrorState(
+        errorMessage: e.toString().replaceAll("Exception ", ""),
+      );
     }
   }
 
-  Future<void> getAllType() async{
+  Future<void> getAllType() async {
     try {
-      state = ExpenseTypeLoadingState(
-        type: "getAllType"
-      );
+      state = ExpenseTypeLoadingState(type: "getAllType");
       List<ExpenseTypeModel> expenseTypeList = await usecase.getAllType();
-      state = ExpenseTypeReadyState(expenseList: expenseTypeList, message: "Successfully Fetched");
+      state = ExpenseTypeReadyState(
+        expenseList: expenseTypeList,
+        message: "Successfully Fetched",
+      );
     } catch (e) {
-      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+      state = ExpenseTypeErrorState(
+        errorMessage: e.toString().replaceAll("Exception ", ""),
+      );
     }
   }
 
-  Future<void> editType(ExpenseTypeModel type) async{
+  Future<void> editType(ExpenseTypeModel type) async {
     try {
-      state = ExpenseTypeLoadingState(
-        type: "edit"
-      );
+      state = ExpenseTypeLoadingState(type: "edit");
       await usecase.editType(type);
       List<ExpenseTypeModel> expenseList = await usecase.getAllType();
-      state = ExpenseTypeReadyState(expenseList: expenseList, message: "Successfully Edited");
+      ref.invalidate(expenseTypeListProvider);
+      state = ExpenseTypeReadyState(
+        expenseList: expenseList,
+        message: "Successfully Edited",
+      );
     } catch (e) {
-      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+      state = ExpenseTypeErrorState(
+        errorMessage: e.toString().replaceAll("Exception ", ""),
+      );
     }
   }
 
-  Future<void> deleteType(int id) async{
+  Future<void> deleteType(int id) async {
     final previousState = state;
     try {
       if (previousState is ExpenseTypeReadyState) {
@@ -81,24 +103,31 @@ class ExpenseTypeNotifier extends Notifier<ExpenseTypeProviderState>{
         );
       }
       await usecase.deleteType(id);
+      ref.invalidate(expenseTypeListProvider);
       ref.invalidate(expenseListProvider);
       await ref.read(expenseProvider.notifier).getAllExpense();
     } catch (e) {
       state = previousState;
-      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception ", ""));
+      state = ExpenseTypeErrorState(
+        errorMessage: e.toString().replaceAll("Exception ", ""),
+      );
     }
   }
 
-  Future<void> getTypebyId(int typeId) async{
+  Future<void> getTypebyId(int typeId) async {
     try {
       state = ExpenseTypeLoadingState(type: "getTypeById");
       ExpenseTypeModel? expenseTypeModel = await usecase.getTypebyId(typeId);
-      if(expenseTypeModel != null){
-        state = ExpenseTypeReadyState(expenseList: [expenseTypeModel], message: "");
+      if (expenseTypeModel != null) {
+        state = ExpenseTypeReadyState(
+          expenseList: [expenseTypeModel],
+          message: "",
+        );
       }
     } catch (e) {
-      state = ExpenseTypeErrorState(errorMessage: e.toString().replaceAll("Exception", ""));
+      state = ExpenseTypeErrorState(
+        errorMessage: e.toString().replaceAll("Exception", ""),
+      );
     }
   }
-
 }

@@ -19,6 +19,7 @@ class _FakeLuckyDrawRepository implements LuckyDrawRepository {
       totalBudget: draw.totalBudget,
       period: draw.period,
       days: draw.days,
+      minBudget: draw.minBudget,
       maxBudget: draw.maxBudget,
       savedMoney: draw.savedMoney,
       tickets: [
@@ -57,15 +58,13 @@ void main() {
       final amounts = LuckyDrawGenerator.generate(
         totalBudget: 4000,
         days: 30,
+        minBudget: 30,
         maxBudget: 100,
         random: Random(7),
       );
 
       expect(amounts, hasLength(30));
-      expect(
-        amounts.every((amount) => amount >= 0.01 && amount <= 100),
-        isTrue,
-      );
+      expect(amounts.every((amount) => amount >= 30 && amount <= 100), isTrue);
       expect(
         amounts.fold<double>(0, (sum, amount) => sum + amount),
         lessThanOrEqualTo(4000),
@@ -79,6 +78,35 @@ void main() {
       );
     },
   );
+
+  test('generator rejects a minimum greater than the maximum', () {
+    expect(
+      () => LuckyDrawGenerator.generate(
+        totalBudget: 100,
+        days: 2,
+        minBudget: 51,
+        maxBudget: 50,
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('generator reserves the minimum budget for every remaining ticket', () {
+    final amounts = LuckyDrawGenerator.generate(
+      totalBudget: 10,
+      days: 4,
+      minBudget: 2,
+      maxBudget: 2.5,
+      random: Random(3),
+    );
+
+    expect(amounts, hasLength(4));
+    expect(amounts.every((amount) => amount >= 2 && amount <= 2.5), isTrue);
+    expect(
+      amounts.fold<double>(0, (sum, amount) => sum + amount),
+      lessThanOrEqualTo(10),
+    );
+  });
 
   test('provider creates and draws a ticket through the usecase', () async {
     final repository = _FakeLuckyDrawRepository();
@@ -107,5 +135,32 @@ void main() {
     await container.read(luckyDrawProvider.notifier).drawTicket(1);
     final state = container.read(luckyDrawProvider) as LuckyDrawReadyState;
     expect(state.draw.tickets.single.drawn, isTrue);
+    expect(state.draw.todayTicket?.amount, 25);
+  });
+
+  test('ticketDrawnOn returns only the ticket drawn on the requested day', () {
+    final draw = LuckyDrawModel(
+      id: 1,
+      totalBudget: 100,
+      period: 'custom',
+      days: 2,
+      maxBudget: 50,
+      savedMoney: 0,
+      tickets: [
+        LuckyDrawTicket(
+          id: 1,
+          drawId: 1,
+          ticketNo: 1,
+          amount: 40,
+          drawn: true,
+          drawnAt: DateTime(2026, 9, 20, 10),
+        ),
+        const LuckyDrawTicket(id: 2, drawId: 1, ticketNo: 2, amount: 60),
+      ],
+      createdAt: DateTime(2026, 9, 20),
+    );
+
+    expect(draw.ticketDrawnOn(DateTime(2026, 9, 20))?.amount, 40);
+    expect(draw.ticketDrawnOn(DateTime(2026, 9, 21)), isNull);
   });
 }

@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/services/app_preference_helper.dart';
+import 'core/services/app_number_formatter.dart';
 import 'core/utils/app_routes.dart';
 import 'core/utils/app_theme.dart';
+import 'features/setting/screens/providers/setting_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,23 +15,26 @@ Future<void> main() async {
   runApp(const ProviderScope(child: ExpneseTracker()));
 }
 
-class ExpneseTracker extends StatefulWidget {
+class ExpneseTracker extends ConsumerWidget {
   const ExpneseTracker({super.key});
 
   @override
-  State<ExpneseTracker> createState() => _ExpneseTrackerState();
-}
-
-class _ExpneseTrackerState extends State<ExpneseTracker> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final currency = ref.watch(currencyProvider);
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Expense Tracker',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
+      themeMode: themeMode,
       routerConfig: AppRoutes.router,
+      builder: (context, child) {
+        return AppCurrencyScope(
+          currency: currency,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

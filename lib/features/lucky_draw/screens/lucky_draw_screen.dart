@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/services/app_number_formatter.dart';
-import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import '../data/models/lucky_draw_model.dart';
 import 'providers/lucky_draw_provider.dart';
@@ -158,17 +157,26 @@ class _LuckyDrawScreenState extends ConsumerState<LuckyDrawScreen>
               children: [
                 _StatItem(
                   label: 'Budget',
-                  value: NumberFormatService.formatCurrency(draw.totalBudget),
+                  value: NumberFormatService.formatCurrency(
+                    context,
+                    draw.totalBudget,
+                  ),
                 ),
                 _StatItem(
                   label: 'Drawn',
-                  value: NumberFormatService.formatCurrency(draw.drawnAmount),
-                  valueColor: AppColor.warrningColor,
+                  value: NumberFormatService.formatCurrency(
+                    context,
+                    draw.drawnAmount,
+                  ),
+                  valueColor: colors.tertiary,
                   showLeftBorder: true,
                 ),
                 _StatItem(
                   label: 'Saved',
-                  value: NumberFormatService.formatCurrency(draw.savedMoney),
+                  value: NumberFormatService.formatCurrency(
+                    context,
+                    draw.savedMoney,
+                  ),
                   valueColor: colors.primary,
                   showLeftBorder: true,
                 ),
@@ -429,7 +437,7 @@ class _LuckyDrawScreenState extends ConsumerState<LuckyDrawScreen>
   Future<void> _deleteAndCreate(int drawId) async {
     await ref.read(luckyDrawProvider.notifier).deleteDraw(drawId);
     if (mounted && ref.read(luckyDrawProvider) is LuckyDrawInitialState) {
-      context.go('/lucky-draw/create');
+      context.pushReplacement('/lucky-draw/create');
     }
   }
 
@@ -572,7 +580,7 @@ class _SavedMoneyCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 7),
                 Text(
-                  NumberFormatService.formatCurrency(draw.savedMoney),
+                  NumberFormatService.formatCurrency(context, draw.savedMoney),
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                     color: colors.primary,
                     fontWeight: FontWeight.w800,

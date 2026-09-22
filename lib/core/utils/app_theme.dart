@@ -14,14 +14,23 @@ class AppTheme {
     final isDark = brightness == Brightness.dark;
     final backgroundColor = isDark
         ? AppColor.primaryColor
-        : const Color(0xFFF8FAFC);
+        : const Color(0xFFF4F6FA);
     final cardBackgroundColor = isDark
         ? AppColor.cardBackgroundColor
         : const Color(0xFFFFFFFF);
     final inputBackgroundColor = isDark
         ? AppColor.inputBackgroundColor
+        : const Color(0xFFE8EDF5);
+    final elevatedCardColor = isDark
+        ? AppColor.inputBackgroundColor
         : const Color(0xFFF1F5F9);
-    final buttonColor = isDark ? AppColor.buttonColor : const Color(0xFF087F5B);
+    final highlightColor = isDark
+        ? const Color(0xFF102A25)
+        : const Color(0xFFF0FAF6);
+    final accentBorderColor = isDark
+        ? const Color(0xFF245647)
+        : const Color(0xFFD1EEE4);
+    final buttonColor = isDark ? AppColor.buttonColor : const Color(0xFF1A9E6E);
     final onButton = isDark ? AppColor.onButton : const Color(0xFFFFFFFF);
     final primaryTextColor = isDark
         ? AppColor.primaryTextColor
@@ -31,9 +40,12 @@ class AppTheme {
         : const Color(0xFF475569);
     final placeholderColor = isDark
         ? AppColor.placeholderColor
-        : const Color(0xFF64748B);
-    final borderColor = isDark ? AppColor.borderColor : const Color(0xFFCBD5E1);
-    final dangerColor = isDark ? AppColor.dangerColor : const Color(0xFFB91C1C);
+        : const Color(0xFF94A3B8);
+    final borderColor = isDark ? AppColor.borderColor : const Color(0xFFDDE3EE);
+    final dangerColor = isDark ? AppColor.dangerColor : const Color(0xFFDC2626);
+    final warningColor = isDark
+        ? AppColor.warrningColor
+        : const Color(0xFFD97706);
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
@@ -48,12 +60,19 @@ class AppTheme {
             onPrimary: onButton,
             secondary: cardBackgroundColor,
             onSecondary: secondaryTextColor,
+            secondaryContainer: highlightColor,
+            onSecondaryContainer: primaryTextColor,
+            tertiary: warningColor,
             surface: cardBackgroundColor,
             onSurface: primaryTextColor,
+            onSurfaceVariant: secondaryTextColor,
             error: dangerColor,
             onError: isDark ? primaryTextColor : Colors.white,
             outline: borderColor,
-            outlineVariant: borderColor,
+            outlineVariant: accentBorderColor,
+            surfaceContainerLow: cardBackgroundColor,
+            surfaceContainer: elevatedCardColor,
+            surfaceContainerHigh: elevatedCardColor,
             surfaceContainerHighest: inputBackgroundColor,
           ),
 

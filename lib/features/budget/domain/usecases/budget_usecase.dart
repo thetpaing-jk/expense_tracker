@@ -10,6 +10,10 @@ class BudgetUsecase {
     return repository.addBudget(budget);
   }
 
+  Future<List<BudgetModel>> getBudgetList() {
+    return repository.getBudgetList();
+  }
+
   Future<double> getCurrentBudget() {
     return repository.getCurrentBudget();
   }

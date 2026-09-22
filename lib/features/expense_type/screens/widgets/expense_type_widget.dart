@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/utils/app_color.dart';
 import '../../../../core/utils/app_const.dart';
 import '../../data/models/expense_type_model.dart';
 import '../providers/expense_type_provider.dart';
@@ -14,12 +13,13 @@ class ExpenseTypeWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       margin: EdgeInsets.only(left: 24, right: 24, bottom: 8),
       decoration: BoxDecoration(
-        color: AppColor.cardBackgroundColor,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColor.borderColor),
+        border: Border.all(color: colors.outline),
       ),
       child: Column(
         children: [
@@ -61,21 +61,24 @@ class ExpenseTypeWidget extends ConsumerWidget {
                   ],
                 ),
                 Spacer(),
-                IconButton(
-                  onPressed: () {
-                    ref.read(expneseIconColor.notifier).state = AppConst.colorList[expenseType.iconColor];
-                    ref.read(expneseIconProvider.notifier).state = AppConst.iconList[expenseType.icon];
-                    context.goNamed(AppConst.expenseTypeCreate, extra: expenseType);
-                  },
-                  icon: Icon(Icons.edit),
-                  color: AppColor.warrningColor,
+                Hero(
+                  tag: "expense-type-add-fab${expenseType.id}",
+                  child: IconButton(
+                    onPressed: () {
+                      ref.read(expneseIconColor.notifier).state = AppConst.colorList[expenseType.iconColor];
+                      ref.read(expneseIconProvider.notifier).state = AppConst.iconList[expenseType.icon];
+                      context.goNamed(AppConst.expenseTypeCreate, extra: expenseType);
+                    },
+                    icon: Icon(Icons.edit),
+                    color: colors.tertiary,
+                  ),
                 ),
                 IconButton(
                   onPressed: () {
                     ref.read(expenseTypeProvider.notifier).deleteType(expenseType.id!);
                   },
                   icon: Icon(Icons.delete),
-                  color: AppColor.dangerColor,
+                  color: colors.error,
                 ),
               ],
             ),

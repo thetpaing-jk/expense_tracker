@@ -1,4 +1,43 @@
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+
+enum AppCurrency {
+  baht(label: 'Baht', code: 'THB', symbol: '฿'),
+  dollar(label: 'Dollar', code: 'USD', symbol: r'$'),
+  mmk(label: 'MMK', code: 'MMK', symbol: 'K');
+
+  final String label;
+  final String code;
+  final String symbol;
+
+  const AppCurrency({
+    required this.label,
+    required this.code,
+    required this.symbol,
+  });
+}
+
+class AppCurrencyScope extends InheritedWidget {
+  final AppCurrency currency;
+
+  const AppCurrencyScope({
+    super.key,
+    required this.currency,
+    required super.child,
+  });
+
+  static AppCurrency of(BuildContext context) {
+    return context
+            .dependOnInheritedWidgetOfExactType<AppCurrencyScope>()
+            ?.currency ??
+        AppCurrency.baht;
+  }
+
+  @override
+  bool updateShouldNotify(AppCurrencyScope oldWidget) {
+    return currency != oldWidget.currency;
+  }
+}
 
 class NumberFormatService {
   /// Format number with thousand separators
@@ -7,12 +46,19 @@ class NumberFormatService {
     return formatter.format(value);
   }
 
-  /// Format number with currency (default USD)
-  static String formatCurrency(num value, {String locale = 'en_US', String symbol = '฿ '}) {
-    final formatter = NumberFormat.currency(locale: locale, symbol: symbol);
+  static String formatCurrency(BuildContext context, num value) {
+    final currency = AppCurrencyScope.of(context);
+    final formatter = NumberFormat.currency(
+      locale: 'en_US',
+      symbol: '${currency.symbol} ',
+    );
     return formatter.format(value);
   }
-  
+
+  static String currencySymbol(BuildContext context) {
+    return AppCurrencyScope.of(context).symbol;
+  }
+
   /// Format number as compact (1K, 1M, etc.)
   static String formatCompact(num value, {String locale = 'en_US'}) {
     final formatter = NumberFormat.compact(locale: locale);
@@ -20,7 +66,11 @@ class NumberFormatService {
   }
 
   /// Format number as compact with one decimal (831.2M)
-  static String formatCompactWithDecimal(num value, {String locale = 'en_US', int decimalDigits = 1}) {
+  static String formatCompactWithDecimal(
+    num value, {
+    String locale = 'en_US',
+    int decimalDigits = 1,
+  }) {
     final formatter = NumberFormat.compact(locale: locale)
       ..maximumFractionDigits = decimalDigits
       ..minimumFractionDigits = decimalDigits;

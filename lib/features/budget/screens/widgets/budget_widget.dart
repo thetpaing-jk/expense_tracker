@@ -32,7 +32,8 @@ class BudgetWidget extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
-              '฿ ${NumberFormatService.formatWithComma(budget)}',
+              '${NumberFormatService.currencySymbol(context)} '
+              '${NumberFormatService.formatWithComma(budget)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelLarge!.copyWith(

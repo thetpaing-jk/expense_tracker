@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/services/app_number_formatter.dart';
-import '../../../core/utils/app_color.dart';
 import '../../expense_type/data/models/expense_type_model.dart';
 import '../../expense_type/screens/providers/expense_type_provider.dart';
 import '../../expense_type/screens/providers/expense_type_provider_state.dart';
@@ -38,7 +37,8 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
 
   Future<void> _prepareForm() async {
     final expense = widget.expense;
-    final initialDate = expense?.date ?? DateFormat("MM-dd-yyyy").format(DateTime.now());
+    final initialDate =
+        expense?.date ?? DateFormat("MM-dd-yyyy").format(DateTime.now());
 
     titleC.text = expense?.title ?? "";
     amountC.text = expense == null ? "" : expense.amount.toString();
@@ -50,7 +50,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
     if (!mounted) return;
 
     if (expense == null) return;
- 
+
     final expenseTypeState = ref.read(expenseTypeProvider);
     if (expenseTypeState is ExpenseTypeReadyState) {
       for (final type in expenseTypeState.expenseList) {
@@ -64,6 +64,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final expenseType = ref.watch(expenseTypeProvider);
     final expenseTypeChoose = ref.watch(expenseTypeChooseProvider);
     final selectedExpenseType = expenseType is ExpenseTypeReadyState
@@ -73,7 +74,9 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
     final expenseState = ref.watch(expenseProvider);
     saveListener();
     return Scaffold(
-      appBar: AppBar(title: Text(widget.expense == null ? "Add Expense" : "Edit Expense")),
+      appBar: AppBar(
+        title: Text(widget.expense == null ? "Add Expense" : "Edit Expense"),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         child: Form(
@@ -86,7 +89,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   "Title",
                   style: TextTheme.of(
                     context,
-                  ).bodyMedium!.copyWith(color: AppColor.secondaryTextColor),
+                  ).bodyMedium!.copyWith(color: colors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 TextFormField(
@@ -96,9 +99,9 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                     titleF.unfocus();
                   },
                   validator: (value) {
-                    if(value == null || value.isEmpty){
+                    if (value == null || value.isEmpty) {
                       return "title is required";
-                    }else{
+                    } else {
                       return null;
                     }
                   },
@@ -110,7 +113,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                       "Enter expense title",
                       style: TextTheme.of(
                         context,
-                      ).bodyLarge!.copyWith(color: AppColor.secondaryTextColor),
+                      ).bodyLarge!.copyWith(color: colors.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -119,7 +122,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   "Amount",
                   style: TextTheme.of(
                     context,
-                  ).bodyMedium!.copyWith(color: AppColor.secondaryTextColor),
+                  ).bodyMedium!.copyWith(color: colors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 TextFormField(
@@ -130,9 +133,9 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                     amountF.unfocus();
                   },
                   validator: (value) {
-                    if(value == null || value.isEmpty){
+                    if (value == null || value.isEmpty) {
                       return "amount is required";
-                    }else if(double.tryParse(value) == null){
+                    } else if (double.tryParse(value) == null) {
                       return "amount must be a number";
                     }
                     return null;
@@ -142,10 +145,10 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                     hint: Text(
-                      NumberFormatService.formatCurrency(0),
+                      NumberFormatService.formatCurrency(context, 0),
                       style: TextTheme.of(
                         context,
-                      ).bodyLarge!.copyWith(color: AppColor.secondaryTextColor),
+                      ).bodyLarge!.copyWith(color: colors.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -154,7 +157,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   "Expense Type",
                   style: TextTheme.of(
                     context,
-                  ).bodyMedium!.copyWith(color: AppColor.secondaryTextColor),
+                  ).bodyMedium!.copyWith(color: colors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 expenseType is ExpenseTypeReadyState
@@ -164,9 +167,9 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                         borderRadius: BorderRadius.circular(25),
                         // underline: SizedBox(),
                         validator: (value) {
-                          if(value == null){
+                          if (value == null) {
                             return "choose the expense type";
-                          }else{
+                          } else {
                             return null;
                           }
                         },
@@ -176,7 +179,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                             child: Text(
                               "Select Type",
                               style: TextTheme.of(context).bodyLarge!.copyWith(
-                                color: AppColor.secondaryTextColor,
+                                color: colors.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -187,9 +190,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                               child: Text(
                                 type.title,
                                 style: TextTheme.of(context).bodyLarge!
-                                    .copyWith(
-                                      color: AppColor.secondaryTextColor,
-                                    ),
+                                    .copyWith(color: colors.onSurfaceVariant),
                               ),
                             ),
                           ],
@@ -205,7 +206,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   "Date",
                   style: TextTheme.of(
                     context,
-                  ).bodyMedium!.copyWith(color: AppColor.secondaryTextColor),
+                  ).bodyMedium!.copyWith(color: colors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 ClipRRect(
@@ -213,8 +214,9 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   child: Material(
                     child: InkWell(
                       onTap: () async {
-                        ref.read(expenseDateTime.notifier)
-                          .state = DateFormat("MM-dd-yyyy").format(
+                        ref
+                            .read(expenseDateTime.notifier)
+                            .state = DateFormat("MM-dd-yyyy").format(
                           await showDatePicker(
                                 context: context,
                                 initialDate: DateTime.now(),
@@ -232,7 +234,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                         ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: AppColor.inputBackgroundColor,
+                          color: colors.surfaceContainerHighest,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,12 +242,12 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                             Text(
                               date,
                               style: TextTheme.of(context).bodyLarge!.copyWith(
-                                color: AppColor.secondaryTextColor,
+                                color: colors.onSurfaceVariant,
                               ),
                             ),
                             Icon(
                               Icons.calendar_month,
-                              color: AppColor.secondaryTextColor,
+                              color: colors.onSurfaceVariant,
                             ),
                           ],
                         ),
@@ -258,7 +260,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   "Note (Optional)",
                   style: TextTheme.of(
                     context,
-                  ).bodyMedium!.copyWith(color: AppColor.secondaryTextColor),
+                  ).bodyMedium!.copyWith(color: colors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 TextFormField(
@@ -275,50 +277,73 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                       "Enter note",
                       style: TextTheme.of(
                         context,
-                      ).bodyLarge!.copyWith(color: AppColor.secondaryTextColor),
+                      ).bodyLarge!.copyWith(color: colors.onSurfaceVariant),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    if(formKey.currentState!.validate()){
-                      int type = expenseTypeChoose!.id!;
-                      ExpenseModel expenseModel = ExpenseModel(
-                        id: widget.expense?.id,
-                        title: titleC.text,
-                        amount: double.parse(amountC.text),
-                        type: type,
-                        date: date,
-                        note: noteC.text,
-                      );
-                      if (widget.expense == null) {
-                        ref.read(expenseProvider.notifier).addExpense(expenseModel);
-                      } else {
-                        ref.read(expenseProvider.notifier).editExpense(expenseModel);
+                Hero(
+                  tag: 'expense-add-fab${widget.expense?.id ?? ""}',
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        int type = expenseTypeChoose!.id!;
+                        ExpenseModel expenseModel = ExpenseModel(
+                          id: widget.expense?.id,
+                          title: titleC.text,
+                          amount: double.parse(amountC.text),
+                          type: type,
+                          date: date,
+                          note: noteC.text,
+                        );
+                        if (widget.expense == null) {
+                          ref
+                              .read(expenseProvider.notifier)
+                              .addExpense(expenseModel);
+                        } else {
+                          ref
+                              .read(expenseProvider.notifier)
+                              .editExpense(expenseModel);
+                        }
                       }
-                    }
-                  }, child: switch (expenseState) {
-                    ExpenseFormState() => Text(widget.expense == null ? "Save Expense" : "Update Expense"),
-                    ExpenseLoadingState() => Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(widget.expense == null ? "Saving Expense" : "Updating Expense"),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        const SizedBox(
-                          height: 25,
-                          width: 25,
-                          child: CircularProgressIndicator.adaptive(
-                            backgroundColor: AppColor.onButton,
+                    },
+                    child: switch (expenseState) {
+                      ExpenseFormState() => Text(
+                        widget.expense == null
+                            ? "Save Expense"
+                            : "Update Expense",
+                      ),
+                      ExpenseLoadingState() => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            widget.expense == null
+                                ? "Saving Expense"
+                                : "Updating Expense",
                           ),
-                        )
-                      ],
-                    ),
-                    ExpenseSuccessState() => Text(widget.expense == null ? "Save Expense" : "Update Expense"),
-                    ExpenseErrorState() => Text(widget.expense == null ? "Save Expense" : "Update Expense"),
-                  }),
+                          const SizedBox(width: 20),
+                          SizedBox(
+                            height: 25,
+                            width: 25,
+                            child: CircularProgressIndicator.adaptive(
+                              backgroundColor: colors.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ExpenseSuccessState() => Text(
+                        widget.expense == null
+                            ? "Save Expense"
+                            : "Update Expense",
+                      ),
+                      ExpenseErrorState() => Text(
+                        widget.expense == null
+                            ? "Save Expense"
+                            : "Update Expense",
+                      ),
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -326,13 +351,18 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
       ),
     );
   }
-  void saveListener() async{
-    ref.listen(expenseProvider, (p,n){
-      if (n is ExpenseSuccessState){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(n.message)));
+
+  void saveListener() async {
+    ref.listen(expenseProvider, (p, n) {
+      if (n is ExpenseSuccessState) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(n.message)));
         context.pop();
-      }else if(n is ExpenseErrorState){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(n.errorMessage)));
+      } else if (n is ExpenseErrorState) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(n.errorMessage)));
       }
     });
   }

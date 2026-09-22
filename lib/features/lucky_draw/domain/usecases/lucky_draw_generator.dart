@@ -6,38 +6,41 @@ class LuckyDrawGenerator {
   static List<double> generate({
     required double totalBudget,
     required int days,
+    required double minBudget,
     required double maxBudget,
     Random? random,
   }) {
-    if (totalBudget <= 0 || days <= 0 || maxBudget <= 0) {
-      throw ArgumentError('Budget, days, and max budget must be positive');
+    if (totalBudget <= 0 || days <= 0 || minBudget <= 0 || maxBudget <= 0) {
+      throw ArgumentError(
+        'Budget, days, min budget, and max budget must be positive',
+      );
     }
 
-    final maxAllowed = (totalBudget * 100 ~/ days) / 100;
-    if (maxBudget > maxAllowed) {
-      throw ArgumentError('Max budget cannot exceed $maxAllowed');
+    final totalCents = (totalBudget * 100).round();
+    final minCents = (minBudget * 100).round();
+    final maxCents = (maxBudget * 100).round();
+    final maxAllowedCents = totalCents ~/ days;
+    if (maxCents > maxAllowedCents) {
+      throw ArgumentError('Max budget cannot exceed ${maxAllowedCents / 100}');
+    }
+    if (minCents > maxCents) {
+      throw ArgumentError('Min budget cannot exceed max budget');
+    }
+    if (minCents * days > totalCents) {
+      throw ArgumentError('Total budget cannot cover the daily minimum');
     }
 
     final rng = random ?? Random();
-    var remaining = totalBudget;
+    var remainingCents = totalCents;
     final amounts = <double>[];
 
     for (var index = 0; index < days; index++) {
-      final isLast = index == days - 1;
-      late final double amount;
-      if (isLast) {
-        amount = min(remaining, maxBudget);
-      } else {
-        final cap = min(maxBudget, remaining - (days - index - 1) * 0.01);
-        if (cap < 0.01) break;
-        amount = double.parse(
-          (0.01 + rng.nextDouble() * (cap - 0.01)).toStringAsFixed(2),
-        );
-      }
-
-      if (amount <= 0) break;
-      amounts.add(amount);
-      remaining = double.parse((remaining - amount).toStringAsFixed(2));
+      final remainingTicketCount = days - index - 1;
+      final reservedMinimum = remainingTicketCount * minCents;
+      final capCents = min(maxCents, remainingCents - reservedMinimum);
+      final amountCents = minCents + rng.nextInt(capCents - minCents + 1);
+      amounts.add(amountCents / 100);
+      remainingCents -= amountCents;
     }
 
     return amounts;

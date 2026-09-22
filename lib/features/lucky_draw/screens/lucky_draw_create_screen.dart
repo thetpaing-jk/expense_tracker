@@ -23,9 +23,11 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
   final _daysController = TextEditingController(text: '1');
   final _drawBudgetController = TextEditingController();
   final _maxBudgetController = TextEditingController();
+  final _minBudgetController = TextEditingController();
   final _daysFocusNode = FocusNode();
   final _drawBudgetFocusNode = FocusNode();
   final _maxBudgetFocusNode = FocusNode();
+  final _minBudgetFocusNode = FocusNode();
 
   String _period = 'monthly';
   bool _checkingExistingDraw = true;
@@ -44,7 +46,7 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
   double get _maxAllowed {
     final drawBudget = _enteredDrawBudget;
     if (_days <= 0 || drawBudget == null || drawBudget <= 0) return 0;
-    return (drawBudget * 100 ~/ _days) / 100;
+    return ((drawBudget * 100).round() ~/ _days) / 100;
   }
 
   double? get _enteredDrawBudget {
@@ -55,12 +57,28 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
     return double.tryParse(_maxBudgetController.text.trim());
   }
 
+  double? get _enteredMinBudget {
+    return double.tryParse(_minBudgetController.text.trim());
+  }
+
+  bool get _canEnterMinBudget {
+    final maxBudget = _enteredMaxBudget;
+    return maxBudget != null && maxBudget > 0 && maxBudget <= _maxAllowed;
+  }
+
   double get _projectedPrizePool {
     final maxBudget = _enteredMaxBudget;
-    if (maxBudget == null || maxBudget <= 0 || maxBudget > _maxAllowed) {
+    final minBudget = _enteredMinBudget;
+    if (maxBudget == null ||
+        maxBudget <= 0 ||
+        maxBudget > _maxAllowed ||
+        minBudget == null ||
+        minBudget <= 0 ||
+        minBudget > maxBudget) {
       return 0;
     }
-    return double.parse((_days * maxBudget).toStringAsFixed(2));
+    final averageTicket = (minBudget + maxBudget) / 2;
+    return double.parse((_days * averageTicket).toStringAsFixed(2));
   }
 
   @override
@@ -153,7 +171,10 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        NumberFormatService.formatCurrency(_availableBudget),
+                        NumberFormatService.formatCurrency(
+                          context,
+                          _availableBudget,
+                        ),
                         style: Theme.of(context).textTheme.headlineSmall!
                             .copyWith(
                               color: colors.primary,
@@ -184,7 +205,7 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
               children: [
                 TextSpan(
                   text:
-                      '(max ${NumberFormatService.formatCurrency(_availableBudget)})',
+                      '(max ${NumberFormatService.formatCurrency(context, _availableBudget)})',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -215,7 +236,7 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
               return null;
             },
             decoration: InputDecoration(
-              prefixText: '฿  ',
+              prefixText: '${NumberFormatService.currencySymbol(context)}  ',
               hintText: '0 – ${_availableBudget.toStringAsFixed(2)}',
             ),
           ),
@@ -277,7 +298,10 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
               Expanded(
                 child: _MetricCard(
                   label: 'Max/day',
-                  value: NumberFormatService.formatCurrency(_maxAllowed),
+                  value: NumberFormatService.formatCurrency(
+                    context,
+                    _maxAllowed,
+                  ),
                   valueColor: const Color(0xFFFBBF24),
                 ),
               ),
@@ -291,7 +315,7 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
               children: [
                 TextSpan(
                   text:
-                      '(max ${NumberFormatService.formatCurrency(_maxAllowed)})',
+                      '(max ${NumberFormatService.formatCurrency(context, _maxAllowed)})',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -320,16 +344,70 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
               return null;
             },
             decoration: InputDecoration(
-              prefixText: '฿  ',
+              prefixText: '${NumberFormatService.currencySymbol(context)}  ',
               hintText: '0 – ${_maxAllowed.toStringAsFixed(2)}',
             ),
           ),
+          const SizedBox(height: 16),
+          Text.rich(
+            TextSpan(
+              text: 'Minimum Budget per Day ',
+              style: Theme.of(context).textTheme.bodyMedium,
+              children: [
+                TextSpan(
+                  text: _canEnterMinBudget
+                      ? '(max ${NumberFormatService.formatCurrency(context, _enteredMaxBudget!)})'
+                      : '(enter a valid max budget first)',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextFormField(
+            controller: _minBudgetController,
+            focusNode: _minBudgetFocusNode,
+            enabled: _canEnterMinBudget,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+            ],
+            onChanged: (_) {
+              setState(() {});
+              _formKey.currentState?.validate();
+            },
+            onTapOutside: (_) => _minBudgetFocusNode.unfocus(),
+            validator: (value) {
+              final amount = double.tryParse(value?.trim() ?? '');
+              if (amount == null) return 'Minimum budget is required';
+              if (amount <= 0) {
+                return 'Minimum budget must be greater than zero';
+              }
+              final maxBudget = _enteredMaxBudget;
+              if (maxBudget == null || maxBudget <= 0) {
+                return 'Enter a valid max budget first';
+              }
+              if (amount > maxBudget) {
+                return 'Minimum budget cannot exceed ${maxBudget.toStringAsFixed(2)}';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              prefixText: '${NumberFormatService.currencySymbol(context)}  ',
+              hintText: _canEnterMinBudget
+                  ? '0 – ${_enteredMaxBudget!.toStringAsFixed(2)}'
+                  : 'Enter max budget first',
+            ),
+          ),
           if (_enteredMaxBudget != null &&
+              _enteredMinBudget != null &&
               drawBudget != null &&
               drawBudget > 0 &&
               drawBudget <= _availableBudget &&
               _enteredMaxBudget! > 0 &&
-              _enteredMaxBudget! <= _maxAllowed) ...[
+              _enteredMaxBudget! <= _maxAllowed &&
+              _enteredMinBudget! > 0 &&
+              _enteredMinBudget! <= _enteredMaxBudget!) ...[
             const SizedBox(height: 12),
             _SummaryCard(
               tickets: _days,
@@ -357,13 +435,16 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
     _daysFocusNode.unfocus();
     _drawBudgetFocusNode.unfocus();
     _maxBudgetFocusNode.unfocus();
+    _minBudgetFocusNode.unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final totalBudget = _enteredDrawBudget!;
     final maxBudget = _enteredMaxBudget!;
+    final minBudget = _enteredMinBudget!;
     final amounts = LuckyDrawGenerator.generate(
       totalBudget: totalBudget,
       days: _days,
+      minBudget: minBudget,
       maxBudget: maxBudget,
     );
     final tickets = [
@@ -380,6 +461,7 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
       totalBudget: totalBudget,
       period: _period,
       days: _days,
+      minBudget: minBudget,
       maxBudget: maxBudget,
       savedMoney: LuckyDrawGenerator.savedMoney(totalBudget, amounts),
       tickets: tickets,
@@ -410,9 +492,11 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
     _daysController.dispose();
     _drawBudgetController.dispose();
     _maxBudgetController.dispose();
+    _minBudgetController.dispose();
     _daysFocusNode.dispose();
     _drawBudgetFocusNode.dispose();
     _maxBudgetFocusNode.dispose();
+    _minBudgetFocusNode.dispose();
     super.dispose();
   }
 }
@@ -524,12 +608,12 @@ class _SummaryCard extends StatelessWidget {
           const SizedBox(height: 12),
           _SummaryRow(label: '🎟 Total Tickets', value: '$tickets tickets'),
           _SummaryRow(
-            label: '💸 Prize Pool',
-            value: NumberFormatService.formatCurrency(prizePool),
+            label: '💸 Estimated Prize Pool',
+            value: NumberFormatService.formatCurrency(context, prizePool),
           ),
           _SummaryRow(
-            label: '🏦 Saved Money',
-            value: NumberFormatService.formatCurrency(savedMoney),
+            label: '🏦 Estimated Saved Money',
+            value: NumberFormatService.formatCurrency(context, savedMoney),
             valueColor: colors.primary,
             showDivider: false,
           ),

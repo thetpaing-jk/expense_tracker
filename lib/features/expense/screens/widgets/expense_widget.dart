@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/services/app_number_formatter.dart';
-import '../../../../core/utils/app_color.dart';
 import '../../../../core/utils/app_const.dart';
 import '../../../expense_type/screens/providers/expense_type_provider.dart';
 import '../../data/models/expense_model.dart';
@@ -13,7 +12,8 @@ import '../providers/expense_provider_state.dart';
 
 class ExpenseWidget extends ConsumerStatefulWidget {
   final ExpenseModel expense;
-  const ExpenseWidget({super.key, required this.expense});
+  final bool showDate;
+  const ExpenseWidget({super.key, required this.expense, this.showDate = true});
 
   @override
   ConsumerState<ExpenseWidget> createState() => _ExpenseWidgetState();
@@ -27,110 +27,136 @@ class _ExpenseWidgetState extends ConsumerState<ExpenseWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final expenseTypeState = ref.watch(expenseTypeByIdProvider(widget.expense.type));
+    final colors = Theme.of(context).colorScheme;
+    final expenseTypeState = ref.watch(
+      expenseTypeByIdProvider(widget.expense.type),
+    );
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppColor.cardBackgroundColor,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          expenseTypeState.when(data: (expense) => expense == null ?
-            const SizedBox()
-            :Container(
+          expenseTypeState.when(
+            data: (expense) => expense == null
+                ? const SizedBox()
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppConst.colorList[expense.iconColor].withValues(
+                        alpha: .4,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Image.asset(
+                      "${AppConst.expneseTypeUrl}${AppConst.iconList[expense.icon]}.png",
+                      width: 25,
+                    ),
+                  ),
+            error: (_, _) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
-                color: AppConst.colorList[expense.iconColor].withValues(alpha: .4),
+                color: colors.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Image.asset(
-                "${AppConst.expneseTypeUrl}${AppConst.iconList[expense.icon]}.png",
-                width: 25,
-              ),
+              child: Icon(Icons.error, color: colors.error),
             ),
-            error: (_,_) =>  Container(
+            loading: () => Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
-                color: AppColor.primaryColor,
+                color: colors.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.error, color: AppColor.dangerColor,)
-            ), loading: ()=> Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(
-                color: AppColor.primaryColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: CircularProgressIndicator.adaptive()
-            ),),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.expense.title,
-                style: TextTheme.of(
-                  context,
-                ).bodyLarge!.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                widget.expense.note,
-                style: TextTheme.of(
-                  context,
-                ).bodyMedium!.copyWith(color: AppColor.secondaryTextColor),
-              ),
-              Text(
-                DateFormat(
-                  "MMM dd - yyyy",
-                ).format(DateFormat("MM-dd-yyyy").parse(widget.expense.date)),
-                style: TextTheme.of(context).bodySmall,
-              ),
-            ],
+              child: CircularProgressIndicator.adaptive(),
+            ),
           ),
-          Spacer(),
-          Column(
-            children: [
-              Text(
-                NumberFormatService.formatCurrency(widget.expense.amount),
-                style: TextTheme.of(
-                  context,
-                ).bodyLarge!.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      context.goNamed(
-                        AppConst.addExpenseScreen,
-                        extra: widget.expense,
-                      );
-                    },
-                    icon: Icon(Icons.edit),
-                    color: AppColor.warrningColor,
-                    // constraints: const BoxConstraints(
-                    //   minWidth: 36,
-                    //   minHeight: 36,
-                    // ),
-                    padding: const EdgeInsets.all(6),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.expense.title,
+                  style: TextTheme.of(
+                    context,
+                  ).bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  widget.expense.note,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextTheme.of(
+                    context,
+                  ).bodyMedium!.copyWith(color: colors.onSurfaceVariant),
+                ),
+                if (widget.showDate)
+                  Text(
+                    DateFormat("MMM dd - yyyy").format(
+                      DateFormat("MM-dd-yyyy").parse(widget.expense.date),
+                    ),
+                    style: TextTheme.of(context).bodySmall,
                   ),
-                  const SizedBox(width: 6),
-                  IconButton(
-                    onPressed: () => _deleteExpense(context, ref),
-                    icon: Icon(Icons.delete),
-                    color: AppColor.dangerColor,
-                    // constraints: const BoxConstraints(
-                    //   minWidth: 36,
-                    //   minHeight: 36,
-                    // ),
-                    padding: const EdgeInsets.all(6),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  NumberFormatService.formatCurrency(
+                    context,
+                    widget.expense.amount,
                   ),
-                ],
-              ),
-            ],
+                  style: TextTheme.of(
+                    context,
+                  ).bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Hero(
+                      tag: "expense-add-fab${widget.expense.id}",
+                      child: IconButton(
+                        onPressed: () {
+                          context.goNamed(
+                            AppConst.addExpenseScreen,
+                            extra: widget.expense,
+                          );
+                        },
+                        icon: Icon(Icons.edit),
+                        color: colors.tertiary,
+                        // constraints: const BoxConstraints(
+                        //   minWidth: 36,
+                        //   minHeight: 36,
+                        // ),
+                        padding: const EdgeInsets.all(6),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton(
+                      onPressed: () => _deleteExpense(context, ref),
+                      icon: Icon(Icons.delete),
+                      color: colors.error,
+                      // constraints: const BoxConstraints(
+                      //   minWidth: 36,
+                      //   minHeight: 36,
+                      // ),
+                      padding: const EdgeInsets.all(6),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -158,7 +184,7 @@ class _ExpenseWidgetState extends ConsumerState<ExpenseWidget> {
               onPressed: () => context.pop(true),
               child: Text(
                 "Delete",
-                style: TextStyle(color: AppColor.dangerColor),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../../core/services/app_number_formatter.dart';
-import '../../../../core/utils/app_color.dart';
 
 class CongratsOverlay extends StatefulWidget {
   final double amount;
@@ -28,15 +27,6 @@ class _CongratsOverlayState extends State<CongratsOverlay>
   late final AnimationController _closeController;
   late final List<double> _confettiX;
   late final List<double> _confettiDrift;
-
-  static final _confettiColors = [
-    AppColor.buttonColor,
-    AppColor.warrningColor,
-    Colors.blue,
-    Colors.purple,
-    Colors.red,
-    Colors.white,
-  ];
 
   @override
   void initState() {
@@ -98,6 +88,14 @@ class _CongratsOverlayState extends State<CongratsOverlay>
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final confettiColors = [
+      colors.primary,
+      colors.tertiary,
+      Colors.blue,
+      Colors.purple,
+      colors.error,
+      Colors.white,
+    ];
     return Material(
       color: Colors.black.withValues(alpha: 0.82),
       child: SafeArea(
@@ -130,7 +128,7 @@ class _CongratsOverlayState extends State<CongratsOverlay>
                               width: 12,
                               height: 12,
                               decoration: BoxDecoration(
-                                color: _confettiColors[index],
+                                color: confettiColors[index],
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             ),
@@ -223,6 +221,7 @@ class _CongratsOverlayState extends State<CongratsOverlay>
                               const SizedBox(height: 6),
                               Text(
                                 NumberFormatService.formatCurrency(
+                                  context,
                                   widget.amount,
                                 ),
                                 style: Theme.of(context)

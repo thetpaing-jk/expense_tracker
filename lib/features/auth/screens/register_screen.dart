@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import 'providers/login_provider.dart';
 import 'providers/login_provider_state.dart';
@@ -48,6 +47,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
   }
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final visibilityState = ref.watch(visibilityProvider);
     final visibilityState1 = ref.watch(visibilityProvider1);
     final authState = ref.watch(authProvider);
@@ -70,17 +70,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: AppColor.borderColor,
+                        color: colors.outline,
                         width: 1.5,
                       ),
-                      color: AppColor.cardBackgroundColor,
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
                           offset: Offset.zero,
                           blurRadius: 28,
                           spreadRadius: 2,
-                          color: AppColor.buttonColor.withValues(
+                          color: colors.primary.withValues(
                             alpha: _iconGlow.value,
                           ),
                         ),
@@ -227,7 +227,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 SizedBox(
                                   width: 25,
                                   height: 25,
-                                  child: CircularProgressIndicator(color: AppColor.primaryColor,),
+                                  child: CircularProgressIndicator(color: colors.onPrimary,),
                                 )
                             ],),
                             LoginSuccessState() => Text("Register"),
@@ -252,7 +252,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                         TextSpan(
                           text: " Login",
                           style: TextTheme.of(context).labelLarge!.copyWith(
-                            color: AppColor.buttonColor
+                            color: colors.primary
                           )
                         )
                       ]

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/services/app_preference_helper.dart';
-import '../../../core/utils/app_color.dart';
 import '../../../core/utils/app_const.dart';
 import 'providers/login_provider.dart';
 import 'providers/login_provider_state.dart';
@@ -50,11 +49,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final visibilityState = ref.watch(visibilityProvider);
     final authState = ref.watch(authProvider);
     loginListener();
     return Scaffold(
-      backgroundColor: AppColor.primaryColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: SingleChildScrollView(
@@ -72,17 +72,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: AppColor.borderColor,
+                          color: colors.outline,
                           width: 1.5,
                         ),
-                        color: AppColor.cardBackgroundColor,
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
                             offset: Offset.zero,
                             blurRadius: 28,
                             spreadRadius: 2,
-                            color: AppColor.buttonColor.withValues(
+                            color: colors.primary.withValues(
                               alpha: _iconGlow.value,
                             ),
                           ),
@@ -107,7 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: AppColor.buttonColor,
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(90)
                     ),
                   ),
@@ -185,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Not implement yet")));
                             }, child: Text("Forgot Password?",
                               style: TextTheme.of(context).bodyMedium!.copyWith(
-                                color: AppColor.buttonColor
+                                color: colors.primary
                               ),
                             ))
                           ],
@@ -205,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 SizedBox(
                                   width: 25,
                                   height: 25,
-                                  child: CircularProgressIndicator(color: AppColor.primaryColor,),
+                                  child: CircularProgressIndicator(color: colors.onPrimary,),
                                 )
                             ],),
                             LoginSuccessState() => Text("Login"),
@@ -230,7 +230,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       TextSpan(
                         text: " Register",
                         style: TextTheme.of(context).labelLarge!.copyWith(
-                          color: AppColor.buttonColor
+                          color: colors.primary
                         )
                       )
                     ]

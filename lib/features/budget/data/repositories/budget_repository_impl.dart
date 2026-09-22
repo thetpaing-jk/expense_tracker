@@ -13,6 +13,11 @@ class BudgetRepositoryImpl implements BudgetRepository {
   }
 
   @override
+  Future<List<BudgetModel>> getBudgetList() {
+    return localDatasource.getBudgetList();
+  }
+
+  @override
   Future<double> getCurrentBudget() {
     return localDatasource.getCurrentBudget();
   }

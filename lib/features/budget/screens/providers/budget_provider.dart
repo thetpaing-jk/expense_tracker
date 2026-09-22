@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../../expense/domain/providers/expense_usecase_provider.dart';
 import '../../data/models/budget_model.dart';
 import '../../domain/providers/budget_repository_provider.dart';
 import '../../domain/usecases/budget_usecase.dart';
@@ -14,9 +15,16 @@ final budgetAmountSelectionProvider = StateProvider<int?>((ref) {
   return null;
 });
 
-final currentBudgetProvider = FutureProvider<double>((ref) {
+final currentBudgetProvider = FutureProvider<double>((ref) async {
   final usecase = ref.read(budgetUsecaseProvider);
-  return usecase.getCurrentBudget();
+  final expense = ref.read(expenseUsecase);
+  double totalBudget = await usecase.getCurrentBudget();
+  double totalExpense = await expense.getTotalExpense();
+  return totalBudget - totalExpense;
+});
+
+final budgetListProvider = FutureProvider<List<BudgetModel>>((ref) {
+  return ref.read(budgetUsecaseProvider).getBudgetList();
 });
 
 final budgetProvider = BudgetNotifierProvider(() {
@@ -39,6 +47,7 @@ class BudgetNotifier extends Notifier<BudgetProviderState> {
       state = BudgetLoadingState();
       await usecase.addBudget(budget);
       final currentBudget = await usecase.getCurrentBudget();
+      ref.invalidate(budgetListProvider);
       ref.invalidate(currentBudgetProvider);
       state = BudgetSuccessState(currentBudget: currentBudget);
     } catch (error) {

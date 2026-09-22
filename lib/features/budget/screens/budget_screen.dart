@@ -1,239 +1,266 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/services/app_number_formatter.dart';
-import '../../../core/utils/app_color.dart';
+import '../../../core/utils/app_const.dart';
 import '../data/models/budget_model.dart';
 import 'providers/budget_provider.dart';
-import 'providers/budget_provider_state.dart';
-import 'widgets/budget_period_widget.dart';
-import 'widgets/budget_widget.dart';
 
-class BudgetScreen extends ConsumerStatefulWidget {
+class BudgetScreen extends ConsumerWidget {
   const BudgetScreen({super.key});
 
   @override
-  ConsumerState<BudgetScreen> createState() => _BudgetScreenState();
-}
-
-class _BudgetScreenState extends ConsumerState<BudgetScreen> {
-  final List<String> periodList = const ['Weekly', 'Monthly', 'Yearly'];
-  final List<int> budgetList = const [500, 1000, 2000, 3000, 5000, 10000];
-  final TextEditingController budgetC = TextEditingController(text: "500");
-  final FocusNode budgetF = FocusNode();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedBudget = ref.watch(budgetAmountSelectionProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
     final currentBudget = ref.watch(currentBudgetProvider);
-    final budgetState = ref.watch(budgetProvider);
-    _listenForSaveResult();
+    final budgets = ref.watch(budgetListProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: const Text('Budget Setting'),
-      ),
-      body: Form(
-        key: formKey,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColor.inputBackgroundColor,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(width: 2, color: AppColor.borderColor),
+      appBar: AppBar(title: const Text('Budgets')),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(currentBudgetProvider);
+            ref.invalidate(budgetListProvider);
+            await Future.wait([
+              ref.read(currentBudgetProvider.future),
+              ref.read(budgetListProvider.future),
+            ]);
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
+                sliver: SliverToBoxAdapter(
+                  child: _CurrentBudgetCard(currentBudget: currentBudget),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Current Budget',
-                    style: TextTheme.of(context).labelLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  currentBudget.when(
-                    loading: () => const SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
-                    error: (error, stackTrace) => Text(
-                      'Unable to load budget',
-                      style: TextTheme.of(context).bodyMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    data: (amount) => Text(
-                      NumberFormatService.formatCurrency(amount),
-                      style: TextTheme.of(
-                        context,
-                      ).headlineLarge!.copyWith(color: AppColor.buttonColor),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 4, 24, 10),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    'Budget History',
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Total saved budget',
-                    style: TextTheme.of(
-                      context,
-                    ).labelLarge!.copyWith(color: AppColor.placeholderColor),
+                ),
+              ),
+              budgets.when(
+                loading: () => const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator.adaptive()),
+                ),
+                error: (error, _) => SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _BudgetListError(
+                    onRetry: () => ref.invalidate(budgetListProvider),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Budget Period',
-              style: TextTheme.of(context).bodyMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(
-              height: 80,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                scrollDirection: Axis.horizontal,
-                itemCount: periodList.length,
-                itemBuilder: (context, index) {
-                  return BudgetPeriodWidget(
-                    name: periodList[index],
-                    index: index,
-                  );
-                },
-              ),
-            ),
-            Text(
-              'Budget Amount',
-              style: TextTheme.of(context).bodyMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            TextFormField(
-              controller: budgetC,
-              focusNode: budgetF,
-              enabled: budgetState is! BudgetLoadingState,
-              onChanged: (_) {
-                ref.read(budgetAmountSelectionProvider.notifier).state = null;
-              },
-              onTapOutside: (_) => budgetF.unfocus(),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-              ],
-              validator: (value) {
-                final amount = double.tryParse(value?.trim() ?? '');
-                if (value == null || value.trim().isEmpty) {
-                  return 'Budget amount is required';
-                }
-                if (amount == null) {
-                  return 'Budget amount must be a number';
-                }
-                if (amount <= 0) {
-                  return 'Budget amount must be greater than zero';
-                }
-                return null;
-              },
-              style: TextTheme.of(context).headlineSmall,
-              decoration: const InputDecoration(
-                prefixText: '฿ ',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Quick Select',
-              style: TextTheme.of(context).bodyMedium!.copyWith(
-                color: Theme.of(context).colorScheme.onSecondary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              padding: EdgeInsets.zero,
-              primary: false,
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisExtent: 40,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: budgetList.length,
-              itemBuilder: (context, index) {
-                final budget = budgetList[index];
-                return BudgetWidget(
-                  budget: budget,
-                  isSelected: selectedBudget == index,
-                  onTap: () {
-                    budgetC.text = budget.toString();
-                    ref.read(budgetAmountSelectionProvider.notifier).state =
-                        index;
-                  },
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: budgetState is BudgetLoadingState ? null : _saveBudget,
-              child: budgetState is BudgetLoadingState
-                  ? const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Saving Budget'),
-                        SizedBox(width: 16),
-                        SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator.adaptive(),
+                ),
+                data: (items) => items.isEmpty
+                    ? const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: _EmptyBudgetList(),
+                      )
+                    : SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
+                        sliver: SliverList.separated(
+                          itemCount: items.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            return _BudgetListTile(budget: items[index]);
+                          },
                         ),
-                      ],
-                    )
-                  : const Text('Save Budget'),
-            ),
-          ],
+                      ),
+              ),
+            ],
+          ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'budget-add-fab',
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        onPressed: () async {
+          final saved = await context.pushNamed<bool>(AppConst.budgetAdd);
+          if (saved == true && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Budget saved successfully')),
+            );
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
+}
 
-  void _saveBudget() {
-    budgetF.unfocus();
-    if (!(formKey.currentState?.validate() ?? false)) return;
+class _CurrentBudgetCard extends StatelessWidget {
+  final AsyncValue<double> currentBudget;
 
-    final budget = BudgetModel(amount: double.parse(budgetC.text.trim()));
-    ref.read(budgetProvider.notifier).addBudget(budget);
-  }
-
-  void _listenForSaveResult() {
-    ref.listen(budgetProvider, (previous, next) {
-      if (next is BudgetSuccessState) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.message)));
-        budgetC.clear();
-        ref.read(budgetAmountSelectionProvider.notifier).state = null;
-        ref.read(budgetProvider.notifier).resetForm();
-      } else if (next is BudgetErrorState) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(next.errorMessage)));
-      }
-    });
-  }
+  const _CurrentBudgetCard({required this.currentBudget});
 
   @override
-  void dispose() {
-    budgetC.dispose();
-    budgetF.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: colors.secondary,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                color: colors.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Current Budget',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          currentBudget.when(
+            loading: () => const SizedBox(
+              width: 26,
+              height: 26,
+              child: CircularProgressIndicator.adaptive(),
+            ),
+            error: (_, _) => Text(
+              'Unable to load budget',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium!.copyWith(color: colors.error),
+            ),
+            data: (amount) => Text(
+              NumberFormatService.formatCurrency(context, amount),
+              style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Total budgets minus total expenses',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall!.copyWith(color: colors.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BudgetListTile extends StatelessWidget {
+  final BudgetModel budget;
+
+  const _BudgetListTile({required this.budget});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colors.outline),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: colors.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.savings_outlined, color: colors.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              budget.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            NumberFormatService.formatCurrency(context, budget.amount),
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+              color: colors.primary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyBudgetList extends StatelessWidget {
+  const _EmptyBudgetList();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.savings_outlined, size: 64, color: colors.outline),
+          const SizedBox(height: 14),
+          Text(
+            'No budgets yet',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tap the + button to add your first budget.',
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: colors.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BudgetListError extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _BudgetListError({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Unable to load budgets.'),
+          const SizedBox(height: 10),
+          OutlinedButton(onPressed: onRetry, child: const Text('Try Again')),
+        ],
+      ),
+    );
   }
 }
