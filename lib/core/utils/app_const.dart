@@ -14,6 +14,7 @@ class AppConst {
   static const String addExpenseScreen = '/addExpenseScreen';
   static const String budget = "/budget";
   static const String budgetAdd = "/budget/add";
+  static const String expenseCalculator = "/expense-calculator";
   // static const String splash = '/';
 
   static const String userTable = 'userTable';

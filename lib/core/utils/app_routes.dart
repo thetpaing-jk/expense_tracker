@@ -10,6 +10,7 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/expense/data/models/expense_model.dart';
 import '../../features/expense/screens/expense.dart';
+import '../../features/expense_calculator/screens/expense_calculator_screen.dart';
 import '../../features/expense_type/data/models/expense_type_model.dart';
 import '../../features/expense_type/screens/expense_type.dart';
 import '../../features/expense_type/screens/expense_type_create.dart';
@@ -174,6 +175,16 @@ class AppRoutes {
         pageBuilder: (context, state) {
           return AppRouteHelper.slideFromRight(
             child: const BudgetAddScreen(),
+            key: state.pageKey,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppConst.expenseCalculator,
+        name: AppConst.expenseCalculator,
+        pageBuilder: (context, state) {
+          return AppRouteHelper.slideFromRight(
+            child: const ExpenseCalculatorScreen(),
             key: state.pageKey,
           );
         },

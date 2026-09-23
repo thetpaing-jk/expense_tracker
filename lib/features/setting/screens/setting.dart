@@ -130,6 +130,14 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                         },
                       ),
                       SettingItems(
+                        icon: Icons.calculate_outlined,
+                        iconColor: colors.primary,
+                        label: "Expense Calculator",
+                        onTap: () {
+                          context.pushNamed(AppConst.expenseCalculator);
+                        },
+                      ),
+                      SettingItems(
                         icon: Icons.casino_outlined,
                         iconColor: colors.primary,
                         label: "Lucky Draw",
