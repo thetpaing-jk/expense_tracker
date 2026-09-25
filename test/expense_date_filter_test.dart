@@ -2,7 +2,12 @@ import 'package:expense_tracker/features/expense/data/models/expense_model.dart'
 import 'package:expense_tracker/features/expense/domain/usecases/expense_date_filter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-ExpenseModel _expense(int id, String date, double amount) {
+ExpenseModel _expense(
+  int id,
+  String date,
+  double amount, {
+  bool deductFromLuckyBudget = false,
+}) {
   return ExpenseModel(
     id: id,
     title: 'Expense $id',
@@ -10,6 +15,7 @@ ExpenseModel _expense(int id, String date, double amount) {
     type: 1,
     date: date,
     note: '',
+    deductFromLuckyBudget: deductFromLuckyBudget,
   );
 }
 
@@ -71,5 +77,48 @@ void main() {
 
     expect(grouped.length, 4);
     expect(grouped[DateTime(2026, 9, 15)]?.length, 2);
+  });
+
+  test('lucky budget total includes only checked expenses on that date', () {
+    final total = ExpenseDateFilterService.luckyBudgetTotalForDate([
+      _expense(1, '09-24-2026', 30),
+      _expense(2, '09-24-2026', 100, deductFromLuckyBudget: true),
+      _expense(3, '09-23-2026', 90, deductFromLuckyBudget: true),
+    ], DateTime(2026, 9, 24));
+
+    expect(total, 100);
+  });
+
+  test('expensesForType filters by type and sorts newest first', () {
+    final typedExpenses = [
+      ExpenseModel(
+        id: 1,
+        title: 'Older food',
+        amount: 10,
+        type: 2,
+        date: '09-20-2026',
+        note: '',
+      ),
+      ExpenseModel(
+        id: 2,
+        title: 'Transport',
+        amount: 20,
+        type: 3,
+        date: '09-24-2026',
+        note: '',
+      ),
+      ExpenseModel(
+        id: 3,
+        title: 'Newer food',
+        amount: 30,
+        type: 2,
+        date: '09-23-2026',
+        note: '',
+      ),
+    ];
+
+    final result = ExpenseDateFilterService.expensesForType(typedExpenses, 2);
+
+    expect(result.map((expense) => expense.id), [3, 1]);
   });
 }

@@ -14,6 +14,10 @@ class LuckyDrawUsecase {
     return repository.getCurrentDraw();
   }
 
+  Future<List<LuckyDrawModel>> getDrawHistory() {
+    return repository.getDrawHistory();
+  }
+
   Future<void> drawTicket(int ticketId) {
     return repository.drawTicket(ticketId);
   }

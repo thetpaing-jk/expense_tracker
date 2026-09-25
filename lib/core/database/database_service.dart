@@ -8,7 +8,7 @@ class DatabaseService {
   static final DatabaseService instance = DatabaseService._();
 
   String dbName = "expense_tracker.db";
-  int dbVersion = 5;
+  int dbVersion = 6;
 
   Database? _db;
 
@@ -58,6 +58,12 @@ class DatabaseService {
         "ADD COLUMN name TEXT NOT NULL DEFAULT 'Budget'",
       );
     }
+    if (oldVersion < 6) {
+      await db.execute(
+        'ALTER TABLE ${AppConst.expenseTable} '
+        'ADD COLUMN deductFromLuckyBudget INTEGER NOT NULL DEFAULT 0',
+      );
+    }
   }
 
   Future<void> _dbCreate(Database db, int version) async {
@@ -88,6 +94,7 @@ class DatabaseService {
                 type INTEGER NOT NULL DEFAULT 1,
                 date TEXT NOT NULL DEFAULT "",
                 note TEXT NOT NULL DEFAULT "",
+                deductFromLuckyBudget INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY (type) REFERENCES ${AppConst.expenseTypeTable} (id)
                   ON DELETE CASCADE
                   ON UPDATE CASCADE

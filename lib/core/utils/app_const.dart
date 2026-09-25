@@ -10,11 +10,14 @@ class AppConst {
   static const String expense = '/expense';
   static const String expenseType = '/expenseType';
   static const String expenseTypeCreate = "/expenseTypeCreate";
+  static const String expenseTypeExpenses = '/expenseTypeExpenses';
   static const String settings = '/settings';
   static const String addExpenseScreen = '/addExpenseScreen';
   static const String budget = "/budget";
   static const String budgetAdd = "/budget/add";
   static const String expenseCalculator = "/expense-calculator";
+  static const String luckyDrawHistory = '/lucky-draw/history';
+  static const String luckyDrawHistoryDetail = '/lucky-draw/history/detail';
   // static const String splash = '/';
 
   static const String userTable = 'userTable';

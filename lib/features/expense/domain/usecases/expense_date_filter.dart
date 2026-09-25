@@ -60,6 +60,43 @@ class ExpenseDateFilterService {
     return grouped;
   }
 
+  static double luckyBudgetTotalForDate(
+    Iterable<ExpenseModel> expenses,
+    DateTime date,
+  ) {
+    final targetDate = dateOnly(date);
+    return expenses.fold<double>(0, (total, expense) {
+      if (!expense.deductFromLuckyBudget) return total;
+      final expenseDate = parseExpenseDate(expense.date);
+      if (expenseDate == null || expenseDate != targetDate) return total;
+      return total + expense.amount;
+    });
+  }
+
+  static List<ExpenseModel> expensesForType(
+    Iterable<ExpenseModel> expenses,
+    int typeId,
+  ) {
+    final filtered = expenses
+        .where((expense) => expense.type == typeId)
+        .toList();
+    filtered.sort((first, second) {
+      final firstDate = parseExpenseDate(first.date);
+      final secondDate = parseExpenseDate(second.date);
+      final dateComparison = switch ((firstDate, secondDate)) {
+        (final DateTime first, final DateTime second) => second.compareTo(
+          first,
+        ),
+        (null, final DateTime _) => 1,
+        (final DateTime _, null) => -1,
+        (null, null) => 0,
+      };
+      if (dateComparison != 0) return dateComparison;
+      return (second.id ?? 0).compareTo(first.id ?? 0);
+    });
+    return filtered;
+  }
+
   static DateTime? parseExpenseDate(String value) {
     try {
       return dateOnly(DateFormat('MM-dd-yyyy').parseStrict(value));

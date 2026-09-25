@@ -5,6 +5,7 @@ class ExpenseModel {
   final int type;
   final String date;
   final String note;
+  final bool deductFromLuckyBudget;
   ExpenseModel({
     this.id,
     required this.title,
@@ -12,6 +13,7 @@ class ExpenseModel {
     required this.type,
     required this.date,
     required this.note,
+    this.deductFromLuckyBudget = false,
   });
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) {
@@ -22,16 +24,18 @@ class ExpenseModel {
       type: json['type'],
       date: json['date'],
       note: json['note'],
+      deductFromLuckyBudget: (json['deductFromLuckyBudget'] as int? ?? 0) == 1,
     );
   }
-  
-  Map<String,dynamic> toJson() {
+
+  Map<String, dynamic> toJson() {
     return {
-      "title" : title,
-      "amount" : amount,
-      "type" : type,
-      "date" : date,
-      "note" : note
+      "title": title,
+      "amount": amount,
+      "type": type,
+      "date": date,
+      "note": note,
+      "deductFromLuckyBudget": deductFromLuckyBudget ? 1 : 0,
     };
   }
 }

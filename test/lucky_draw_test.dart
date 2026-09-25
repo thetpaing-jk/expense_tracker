@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:expense_tracker/features/expense/data/models/expense_model.dart';
 import 'package:expense_tracker/features/lucky_draw/data/models/lucky_draw_model.dart';
 import 'package:expense_tracker/features/lucky_draw/data/providers/lucky_draw_data_provider.dart';
 import 'package:expense_tracker/features/lucky_draw/domain/repositories/lucky_draw_repository.dart';
 import 'package:expense_tracker/features/lucky_draw/domain/usecases/lucky_draw_generator.dart';
+import 'package:expense_tracker/features/lucky_draw/domain/usecases/lucky_draw_history_calculator.dart';
 import 'package:expense_tracker/features/lucky_draw/screens/providers/lucky_draw_provider.dart';
 import 'package:expense_tracker/features/lucky_draw/screens/providers/lucky_draw_provider_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,6 +51,9 @@ class _FakeLuckyDrawRepository implements LuckyDrawRepository {
 
   @override
   Future<LuckyDrawModel?> getCurrentDraw() async => currentDraw;
+
+  @override
+  Future<List<LuckyDrawModel>> getDrawHistory() async => [?currentDraw];
 }
 
 void main() {
@@ -163,4 +168,80 @@ void main() {
     expect(draw.ticketDrawnOn(DateTime(2026, 9, 20))?.amount, 40);
     expect(draw.ticketDrawnOn(DateTime(2026, 9, 21)), isNull);
   });
+
+  test(
+    'history maps checked expenses by drawn date and sorts newest first',
+    () {
+      final draw = LuckyDrawModel(
+        id: 1,
+        totalBudget: 200,
+        period: 'custom',
+        days: 2,
+        maxBudget: 100,
+        savedMoney: 0,
+        tickets: [
+          LuckyDrawTicket(
+            id: 1,
+            drawId: 1,
+            ticketNo: 1,
+            amount: 40,
+            drawn: true,
+            drawnAt: DateTime(2026, 9, 20, 10),
+          ),
+          LuckyDrawTicket(
+            id: 2,
+            drawId: 1,
+            ticketNo: 2,
+            amount: 60,
+            drawn: true,
+            drawnAt: DateTime(2026, 9, 21, 10),
+          ),
+        ],
+        createdAt: DateTime(2026, 9, 20),
+      );
+      final expenses = [
+        ExpenseModel(
+          id: 1,
+          title: 'Ignored expense',
+          amount: 100,
+          type: 1,
+          date: '09-21-2026',
+          note: '',
+        ),
+        ExpenseModel(
+          id: 2,
+          title: 'Lucky expense',
+          amount: 75,
+          type: 1,
+          date: '09-21-2026',
+          note: '',
+          deductFromLuckyBudget: true,
+        ),
+        ExpenseModel(
+          id: 3,
+          title: 'Previous lucky expense',
+          amount: 10,
+          type: 1,
+          date: '09-20-2026',
+          note: '',
+          deductFromLuckyBudget: true,
+        ),
+      ];
+
+      final history = LuckyDrawHistoryCalculator.build(
+        draws: [draw],
+        expenses: expenses,
+      );
+
+      expect(history.map((entry) => entry.date), [
+        DateTime(2026, 9, 21),
+        DateTime(2026, 9, 20),
+      ]);
+      expect(history.first.spentAmount, 75);
+      expect(history.first.isOverBudget, isTrue);
+      expect(history.first.overBudgetAmount, 15);
+      expect(history.first.expenses.single.title, 'Lucky expense');
+      expect(history.last.remainingAmount, 30);
+    },
+  );
 }

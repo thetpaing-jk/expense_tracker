@@ -57,7 +57,11 @@ class HomeSummaryCalculator {
       final effectiveEnd = programEnd.isBefore(today) ? programEnd : today;
       final spentDuringProgram = effectiveEnd.isBefore(start)
           ? 0.0
-          : _totalBetween(expenses, start, effectiveEnd);
+          : _totalBetween(
+              expenses.where((expense) => expense.deductFromLuckyBudget),
+              start,
+              effectiveEnd,
+            );
       luckyBudgetRemaining = luckyDraw.totalBudget - spentDuringProgram;
     }
 
@@ -139,7 +143,7 @@ class HomeSummaryCalculator {
   }
 
   static double _totalBetween(
-    List<ExpenseModel> expenses,
+    Iterable<ExpenseModel> expenses,
     DateTime start,
     DateTime end,
   ) {

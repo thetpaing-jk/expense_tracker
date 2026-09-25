@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../expense/data/models/expense_model.dart';
-import '../../../expense/domain/usecases/expense_date_filter.dart';
 import '../../domain/models/expense_calculator_models.dart';
 import '../../domain/usecases/expense_calculator.dart';
 
@@ -99,18 +98,14 @@ class ExpenseCalculatorNotifier extends Notifier<ExpenseCalculatorState> {
     );
   }
 
-  int importTodayExpenses(List<ExpenseModel> expenses, {DateTime? now}) {
-    final today = ExpenseDateFilterService.dateOnly(now ?? DateTime.now());
+  int importExpenses(List<ExpenseModel> expenses) {
     final existingIds = state.entries
         .map((entry) => entry.sourceExpenseId)
         .whereType<int>()
         .toSet();
     final imported = expenses
         .where((expense) {
-          final date = ExpenseDateFilterService.parseExpenseDate(expense.date);
-          return date == today &&
-              expense.id != null &&
-              !existingIds.contains(expense.id);
+          return expense.id != null && !existingIds.contains(expense.id);
         })
         .map(
           (expense) => _newEntry(

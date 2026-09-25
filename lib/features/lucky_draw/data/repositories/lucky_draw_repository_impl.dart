@@ -19,6 +19,11 @@ class LuckyDrawRepositoryImpl implements LuckyDrawRepository {
   }
 
   @override
+  Future<List<LuckyDrawModel>> getDrawHistory() {
+    return datasource.getDrawHistory();
+  }
+
+  @override
   Future<void> drawTicket(int ticketId) {
     return datasource.drawTicket(ticketId);
   }

@@ -7,6 +7,7 @@ const String luckyDrawTicketTable = 'luckyDrawTicketTable';
 abstract class LuckyDrawDatasource {
   Future<int> createDraw(LuckyDrawModel draw, List<double> amounts);
   Future<LuckyDrawModel?> getCurrentDraw();
+  Future<List<LuckyDrawModel>> getDrawHistory();
   Future<void> drawTicket(int ticketId);
   Future<void> deleteDraw(int drawId);
 }
@@ -25,12 +26,14 @@ class LuckyDrawDatasourceImpl implements LuckyDrawDatasource {
 
     final db = await _databaseService.database;
     return db.transaction((transaction) async {
-      final existingDraws = await transaction.query(
-        luckyDrawTable,
-        columns: ['id'],
-        limit: 1,
+      final activeDraws = await transaction.rawQuery(
+        'SELECT d.id FROM $luckyDrawTable AS d '
+        'WHERE EXISTS ('
+        'SELECT 1 FROM $luckyDrawTicketTable AS t '
+        'WHERE t.drawId = d.id AND t.drawn = 0'
+        ') LIMIT 1',
       );
-      if (existingDraws.isNotEmpty) {
+      if (activeDraws.isNotEmpty) {
         throw StateError('An active Lucky Draw already exists');
       }
 
@@ -70,6 +73,29 @@ class LuckyDrawDatasourceImpl implements LuckyDrawDatasource {
   }
 
   @override
+  Future<List<LuckyDrawModel>> getDrawHistory() async {
+    final db = await _databaseService.database;
+    final drawMaps = await db.query(luckyDrawTable, orderBy: 'createdAt DESC');
+    final draws = <LuckyDrawModel>[];
+    for (final drawMap in drawMaps) {
+      final drawId = drawMap['id'] as int;
+      final ticketMaps = await db.query(
+        luckyDrawTicketTable,
+        where: 'drawId = ? AND drawn = 1',
+        whereArgs: [drawId],
+        orderBy: 'drawnAt DESC',
+      );
+      draws.add(
+        LuckyDrawModel.fromMap(
+          drawMap,
+          tickets: ticketMaps.map(LuckyDrawTicket.fromMap).toList(),
+        ),
+      );
+    }
+    return draws;
+  }
+
+  @override
   Future<void> drawTicket(int ticketId) async {
     final db = await _databaseService.database;
     await db.transaction((transaction) async {
@@ -88,13 +114,13 @@ class LuckyDrawDatasourceImpl implements LuckyDrawDatasource {
         throw StateError('This ticket has already been drawn');
       }
 
-      final drawTickets = await transaction.query(
+      final drawnTickets = await transaction.query(
         luckyDrawTicketTable,
-        where: 'drawId = ?',
-        whereArgs: [selectedTicket.drawId],
+        columns: ['drawnAt'],
+        where: 'drawn = 1',
       );
       final today = DateTime.now();
-      final alreadyDrewToday = drawTickets.any((map) {
+      final alreadyDrewToday = drawnTickets.any((map) {
         final value = map['drawnAt'] as String?;
         final drawnAt = value == null
             ? null

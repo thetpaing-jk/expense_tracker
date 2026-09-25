@@ -4,13 +4,18 @@ import 'package:expense_tracker/features/home/domain/usecases/home_summary_calcu
 import 'package:expense_tracker/features/lucky_draw/data/models/lucky_draw_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-ExpenseModel _expense(String date, double amount) {
+ExpenseModel _expense(
+  String date,
+  double amount, {
+  bool deductFromLuckyBudget = false,
+}) {
   return ExpenseModel(
     title: 'Expense',
     amount: amount,
     type: 1,
     date: date,
     note: '',
+    deductFromLuckyBudget: deductFromLuckyBudget,
   );
 }
 
@@ -48,7 +53,7 @@ void main() {
     expect(month.totalBudget, 4000);
   });
 
-  test('lucky budget subtracts expenses during the draw period', () {
+  test('lucky budget subtracts only checked expenses during draw period', () {
     final draw = LuckyDrawModel(
       id: 1,
       totalBudget: 400,
@@ -62,14 +67,18 @@ void main() {
     );
 
     final summary = HomeSummaryCalculator.calculate(
-      expenses: expenses,
+      expenses: [
+        _expense('09-21-2026', 20, deductFromLuckyBudget: true),
+        _expense('09-22-2026', 30),
+        _expense('09-23-2026', 40, deductFromLuckyBudget: true),
+      ],
       budgets: budgets,
       period: HomeExpensePeriod.thisMonth,
       luckyDraw: draw,
       now: DateTime(2026, 9, 23),
     );
 
-    expect(summary.luckyBudgetRemaining, 310);
+    expect(summary.luckyBudgetRemaining, 340);
   });
 
   test('lucky budget is absent when there is no lucky draw', () {

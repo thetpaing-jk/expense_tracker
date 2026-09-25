@@ -90,7 +90,8 @@ class _LuckyDrawCreateScreenState extends ConsumerState<LuckyDrawCreateScreen> {
   Future<void> _checkExistingDraw() async {
     await ref.read(luckyDrawProvider.notifier).getCurrentDraw();
     if (!mounted) return;
-    if (ref.read(luckyDrawProvider) is LuckyDrawReadyState) {
+    final state = ref.read(luckyDrawProvider);
+    if (state is LuckyDrawReadyState && state.draw.undrawnTickets.isNotEmpty) {
       context.pushReplacement('/lucky-draw');
       return;
     }

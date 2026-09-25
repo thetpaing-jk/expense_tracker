@@ -102,14 +102,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       (sum, expense) => sum + expense.amount,
     );
     final today = ExpenseDateFilterService.dateOnly(DateTime.now());
-    final todayExpense = expenses.fold<double>(0, (total, expense) {
-      final expenseDate = ExpenseDateFilterService.parseExpenseDate(
-        expense.date,
-      );
-      return expenseDate != null && _isSameDay(expenseDate, today)
-          ? total + expense.amount
-          : total;
-    });
+    final todayExpense = ExpenseDateFilterService.luckyBudgetTotalForDate(
+      expenses,
+      today,
+    );
     final currentDraw = luckyDrawState is LuckyDrawReadyState
         ? luckyDrawState.draw
         : null;

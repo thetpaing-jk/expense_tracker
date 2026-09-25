@@ -27,9 +27,11 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
   FocusNode noteF = FocusNode();
   FocusNode typeF = FocusNode();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool deductFromLuckyBudget = false;
   @override
   void initState() {
     super.initState();
+    deductFromLuckyBudget = widget.expense?.deductFromLuckyBudget ?? false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _prepareForm();
     });
@@ -256,6 +258,21 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: const Text("Deduct from today's Lucky budget"),
+                  subtitle: const Text(
+                    'Only checked expenses reduce your Lucky budget.',
+                  ),
+                  value: deductFromLuckyBudget,
+                  onChanged: (value) {
+                    setState(() {
+                      deductFromLuckyBudget = value ?? false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
                 Text(
                   "Note (Optional)",
                   style: TextTheme.of(
@@ -295,6 +312,7 @@ class _AddExpenseState extends ConsumerState<AddExpense> {
                           type: type,
                           date: date,
                           note: noteC.text,
+                          deductFromLuckyBudget: deductFromLuckyBudget,
                         );
                         if (widget.expense == null) {
                           ref

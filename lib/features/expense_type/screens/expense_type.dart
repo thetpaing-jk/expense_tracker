@@ -31,10 +31,7 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
     // listenChanges();
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Expense Type",
-          style: TextTheme.of(context).titleLarge,
-        ),
+        title: Text("Expense Type", style: TextTheme.of(context).titleLarge),
       ),
       body: SafeArea(
         child: Stack(
@@ -49,24 +46,30 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
                   if (expenseTypeState is ExpenseTypeReadyState &&
                       expenseTypeState.expenseList.isNotEmpty)
                     SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final expenseType =
-                              expenseTypeState.expenseList[index];
-                          int expenseCount = 0;
-                          expenseListState.whenData((value) {
-                            // debugPrint("The expense List : $value");
-                            expenseCount = value.fold(0, (sum, expense){
-                              if(expense.type == expenseTypeState.expenseList[index].id){
-                                return sum+=1;
-                              }
-                              return sum;
-                            });
-                          },);
-                          return ExpenseTypeWidget(expenseType: expenseType, expenseCount: expenseCount,);
-                        },
-                        childCount: expenseTypeState.expenseList.length,
-                      ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final expenseType = expenseTypeState.expenseList[index];
+                        int expenseCount = 0;
+                        expenseListState.whenData((value) {
+                          // debugPrint("The expense List : $value");
+                          expenseCount = value.fold(0, (sum, expense) {
+                            if (expense.type ==
+                                expenseTypeState.expenseList[index].id) {
+                              return sum += 1;
+                            }
+                            return sum;
+                          });
+                        });
+                        return ExpenseTypeWidget(
+                          expenseType: expenseType,
+                          expenseCount: expenseCount,
+                          onTap: expenseType.id == null
+                              ? null
+                              : () => context.pushNamed(
+                                  AppConst.expenseTypeExpenses,
+                                  extra: expenseType,
+                                ),
+                        );
+                      }, childCount: expenseTypeState.expenseList.length),
                     )
                   else if (expenseTypeState is ExpenseTypeReadyState)
                     SliverFillRemaining(
@@ -81,7 +84,8 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
                 ],
               ),
             ),
-            expenseTypeState is ExpenseTypeLoadingState && expenseTypeState.type == "getAllType"
+            expenseTypeState is ExpenseTypeLoadingState &&
+                    expenseTypeState.type == "getAllType"
                 ? Center(
                     child: Container(
                       height: 120,
@@ -90,7 +94,9 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
                         vertical: 24,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
@@ -124,14 +130,15 @@ class _ExpenseTypeScreenState extends ConsumerState<ExpenseTypeScreen> {
       ),
     );
   }
-  void listenChanges(){
+
+  void listenChanges() {
     ref.listen(expenseTypeProvider, (p, next) {
-      if(next is ExpenseTypeReadyState){
+      if (next is ExpenseTypeReadyState) {
         String message = next.message;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(message)));
-      }else if(next is ExpenseTypeErrorState){
+      } else if (next is ExpenseTypeErrorState) {
         String message = next.errorMessage;
         ScaffoldMessenger.of(
           context,

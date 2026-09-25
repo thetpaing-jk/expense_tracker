@@ -10,6 +10,10 @@ typedef LuckyDrawNotifierProvider =
 
 final luckyDrawProvider = LuckyDrawNotifierProvider(() => LuckyDrawProvider());
 
+final luckyDrawHistoryProvider = FutureProvider<List<LuckyDrawModel>>((ref) {
+  return ref.read(luckyDrawUsecase).getDrawHistory();
+});
+
 class LuckyDrawProvider extends Notifier<LuckyDrawState> {
   LuckyDrawUsecase get usecase => ref.read(luckyDrawUsecase);
 
@@ -20,6 +24,7 @@ class LuckyDrawProvider extends Notifier<LuckyDrawState> {
     try {
       state = LuckyDrawLoadingState();
       await usecase.createDraw(draw);
+      ref.invalidate(luckyDrawHistoryProvider);
       final createdDraw = await usecase.getCurrentDraw();
       if (createdDraw == null) {
         throw StateError('Lucky Draw could not be loaded after creation');
@@ -52,6 +57,7 @@ class LuckyDrawProvider extends Notifier<LuckyDrawState> {
     try {
       state = LuckyDrawLoadingState();
       await usecase.drawTicket(ticketId);
+      ref.invalidate(luckyDrawHistoryProvider);
       final draw = await usecase.getCurrentDraw();
       if (draw == null) {
         throw StateError('Lucky Draw could not be refreshed');
@@ -69,6 +75,7 @@ class LuckyDrawProvider extends Notifier<LuckyDrawState> {
     try {
       state = LuckyDrawLoadingState();
       await usecase.deleteDraw(drawId);
+      ref.invalidate(luckyDrawHistoryProvider);
       state = LuckyDrawInitialState();
     } catch (error) {
       state = LuckyDrawErrorState(

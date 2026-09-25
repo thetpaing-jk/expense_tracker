@@ -109,7 +109,10 @@ class ExpenseTypeNotifier extends Notifier<ExpenseTypeProviderState> {
     } catch (e) {
       state = previousState;
       state = ExpenseTypeErrorState(
-        errorMessage: e.toString().replaceAll("Exception ", ""),
+        errorMessage: e
+            .toString()
+            .replaceAll('Exception: ', '')
+            .replaceAll('Bad state: ', ''),
       );
     }
   }

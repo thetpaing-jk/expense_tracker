@@ -2,6 +2,7 @@ import 'package:expense_tracker/features/budget/screens/budget_screen.dart';
 import 'package:expense_tracker/features/budget/screens/budget_add_screen.dart';
 import 'package:expense_tracker/features/expense/screens/expense_add.dart';
 import 'package:expense_tracker/features/lucky_draw/screens/lucky_draw_create_screen.dart';
+import 'package:expense_tracker/features/lucky_draw/screens/lucky_draw_history_screen.dart';
 import 'package:expense_tracker/features/lucky_draw/screens/lucky_draw_screen.dart';
 import 'package:expense_tracker/features/splash/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +15,9 @@ import '../../features/expense_calculator/screens/expense_calculator_screen.dart
 import '../../features/expense_type/data/models/expense_type_model.dart';
 import '../../features/expense_type/screens/expense_type.dart';
 import '../../features/expense_type/screens/expense_type_create.dart';
+import '../../features/expense_type/screens/expense_type_expenses.dart';
 import '../../features/home/screens/home_screen.dart';
+import '../../features/lucky_draw/domain/usecases/lucky_draw_history_calculator.dart';
 import '../../features/root.dart';
 import '../../features/setting/screens/setting.dart';
 import '../services/app_route_helper.dart';
@@ -101,6 +104,18 @@ class AppRoutes {
                       }
                       return AppRouteHelper.fadeTransition(
                         child: ExpenseTypeCreateScreen(type: type),
+                        key: state.pageKey,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: AppConst.expenseTypeExpenses,
+                    name: AppConst.expenseTypeExpenses,
+                    pageBuilder: (context, state) {
+                      return AppRouteHelper.slideFromRight(
+                        child: ExpenseTypeExpensesScreen(
+                          expenseType: state.extra as ExpenseTypeModel,
+                        ),
                         key: state.pageKey,
                       );
                     },
@@ -205,6 +220,28 @@ class AppRoutes {
         pageBuilder: (context, state) {
           return AppRouteHelper.slideFromRight(
             child: LuckyDrawScreen(),
+            key: state.pageKey,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppConst.luckyDrawHistory,
+        name: AppConst.luckyDrawHistory,
+        pageBuilder: (context, state) {
+          return AppRouteHelper.slideFromRight(
+            child: const LuckyDrawHistoryScreen(),
+            key: state.pageKey,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppConst.luckyDrawHistoryDetail,
+        name: AppConst.luckyDrawHistoryDetail,
+        pageBuilder: (context, state) {
+          return AppRouteHelper.slideFromRight(
+            child: LuckyDrawHistoryDetailScreen(
+              entry: state.extra as LuckyDrawHistoryEntry,
+            ),
             key: state.pageKey,
           );
         },

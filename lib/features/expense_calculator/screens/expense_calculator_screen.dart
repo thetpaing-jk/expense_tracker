@@ -98,12 +98,12 @@ class _CalculatorForm extends ConsumerWidget {
           onPressed: expenseHistory.isLoading
               ? null
               : () {
-                  final count = notifier.importTodayExpenses(history);
+                  final count = notifier.importExpenses(history);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
                         count == 0
-                            ? 'No new expenses found for today.'
+                            ? 'No new expenses found.'
                             : '$count expense${count == 1 ? '' : 's'} imported.',
                       ),
                     ),
@@ -113,7 +113,7 @@ class _CalculatorForm extends ConsumerWidget {
           label: Text(
             expenseHistory.isLoading
                 ? 'Loading expenses...'
-                : "Import today's expenses from app",
+                : 'Import expenses from app',
           ),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),

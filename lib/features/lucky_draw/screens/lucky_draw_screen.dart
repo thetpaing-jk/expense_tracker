@@ -92,6 +92,11 @@ class _LuckyDrawScreenState extends ConsumerState<LuckyDrawScreen>
         leading: BackButton(onPressed: _handleBack),
         title: const Text('Lucky Draw 🎟️'),
         actions: [
+          IconButton(
+            tooltip: 'Lucky Draw history',
+            onPressed: () => context.pushNamed(AppConst.luckyDrawHistory),
+            icon: const Icon(Icons.history),
+          ),
           if (draw != null)
             Padding(
               padding: const EdgeInsets.only(right: 8),
@@ -259,7 +264,7 @@ class _LuckyDrawScreenState extends ConsumerState<LuckyDrawScreen>
                     OutlinedButton(
                       onPressed: isLoading
                           ? null
-                          : () => _deleteAndCreate(draw.id),
+                          : () => context.push('/lucky-draw/create'),
                       child: const Text('Start a New Lucky Draw'),
                     ),
                   ],
